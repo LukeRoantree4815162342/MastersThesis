@@ -1,0 +1,167 @@
+% Chapter 2
+
+\chapter{Baseline Solution of Radial TISE for Hydrogenic Atom with a Soft-Core Potential} % Main chapter title
+
+\label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
+
+%----------------------------------------------------------------------------------------
+
+
+\section{Derivation of Radial TISE approximation}
+This 'baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
+
+Is this an appropriate place for the above?
+
+The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
+
+\subsection{Derivation of Radial Equation from Time Independent Scrodinger Equation}
+lksdlkjasd kalsjdnf alksjd fakjn a lkjnasd lka a la lkjasd la lksad lak a
+as akjs ka lka alk lllasd l
+asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
+assdf as kjdnfasd
+
+\subsection{Derivation of Matrix Central Finite Difference Method (MCFD) from Taylor Series}
+Taylor expansion: 
+
+
+\subsection{Useful Properties of MCFD Method}
+\begin{itemize}
+\item[-]Sparse: \\ Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices
+\item[-]Hermitian: \\ asdfabsdflkajsnkja nds kljand akjs aksj lkajs nalkjs nalkjn  lka nalk  alk na ksjna knja kjna ;kjna;j na jn;jndav k;aj n
+\end{itemize}
+
+\section{Comparison Between Soft-Core Potential and Coulomb Potential}
+* Move out of here *
+a lkjnasd lka a la lkjasd la lksad lak a
+as akjs ka lka alk lllasd l
+asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
+assdf as kjdnfasd
+lsdkfgdlkfmsdlfgm lk oijfoi  laskdmaksd kadfoaskfv aksd
+
+\section{Implementation}
+
+\subsection{Propagator Method and Limitations}
+
+\subsection{Matrix Method and Benefits}
+
+\subsection{Solving the Matrix Method}
+* Make sure this includes at least an outline of krylov subspace iteration and preconditioning
+
+\section{Results}
+
+\subsection{Results with no Potential (Particle In A Box)}
+
+\subsection{Results for Hydrogenic Atom with A Soft-Core Potential}
+
+\section{Optimisations}
+
+\subsection{Sparse Storage}
+The first improvement to the chosen implementation (matrix method) involved moving from storing the Hamiltonian in a standard storage format, in this case a numpy ndarray, to a more suitable data structure; a sparse matrix. 
+
+The motivation for this is that to obtain a solution to a very high accuracy a large number of grid points are needed and, with ndarray storage, the memory needed to store the Hamiltonian scales with the square of the number of grid points - meaning that the maximum possible accuracy is limited by the size of the Hamiltonian that can be held in memory. 
+
+From <ref earlier>, we see that the Hamiltonian is tri-diagonal for our 3 point CFD approach. As a result we know everything about the Hamiltonian if we know its tri-diagonal elements, and so switching to a sparse diagonal storage data structure (scipy's sparse.diags) we can throw away the unneeded zeros and obtain a more efficient Hamiltonian representation that scales linearly with the number of grid points. 
+
+Switching to this data structure expanded the maximum size of Hamiltonian that could be held in memory on my laptop (8GB RAM) from one using <original> grid points to one using over 10 million grid points.
+
+Limitations of this data structure include that more specialised functions are needed to operate on sparse matrices; for example numpy's linalg.eig eigensolver is unable to operate on sparse data. Luckily, scipy's sparse library has a range of equivalent tools designed to replicate the effects of many of numpy's operations for sparse data structure, including several eigensolvers which we now look at as an additional optimisation method.
+
+\subsection{Eigensolver Choice}
+As seen in the above section, a sparse storage system allows for more accurate calculations to be performed. There are two main sparse eigensolvers available to use in place of numpy's linalg.eig here; scipy's sparse.linalg.eigs and sparse.linalg.eigsh. These both work similarly, using Arnoldi-based methods for subspace iteration to obtain the eigenpairs, with the difference being that the former uses standard Arnoldi iteration, while the latter uses Lanczos iteration * CITE *. 
+
+Lanczos iteration is a simplification of Arnoldi iteration for the case where the matrix in question is Hermitian; from * cite previous *, we know that a CFD-based Hamiltonian will be real and symmetric - and therefore Hermitian. 
+
+For a model TISE solution using 10k grid points, the relative speedup of using eigsh over eigs was (* TEST *)\%
+
+Additional optimisations involving this eigensolver are possible, including the optional parameter `k' which allows the number of desired eigenstates to be specified. By default, the `k' most dominant eigenstates will be returned (dominant implying largest eigenvalue magnitude). 
+
+As we only care about bound states, with eigenvalues below zero, we don't necessarily want the `k' most dominant eigenstates; rather we want the `k' most dominant eigenstates *corresponding to negative eigenvalues*. 
+
+Another optional parameter, `sigma', can be used to achieve this. `sigma' allows a `target' eigenvalue value to be given and, through performing shift-invert preconditioning (* cite my L3? *), the `k' eigenstates closest to that value be returned. 
+
+By passing in a suitably large negative number, we ensure that the returned eigenstates will correspond to the ground state and `k-1'-first excited states. This allows a massive reduction in computational effort needed to obtain particular bound states as, without these, all eigenstates would need to be calculated and then sorted. 
+
+Additional optimisations involving the `sigma' parameter are described below, which lead to further large reductions in computational expense.
+
+\subsection{FastBOI Improvement}
+An additional efficiency improvement that I developed makes use of results from (* cite previous *), where it is seen that the rate of convergence of an eigenstate during subspace iteration is proportional to the magnitude of the corresponding eigenvalue and that eigenstates of of a matrix are also eigenstates of that matrix's inverse (if it exists), with corresponding eigenvalues equal to the reciprocal of the original eigenvalues. 
+
+Combining these it can be seen that if an estimate of an eigenstate's eigenvalue is known, say $\lambda$, then $\lambda I$ can be subtracted from the original matrix to create a new matrix with the same eigenstates, but with eigenvalues equal to the original ones minus $\lambda$. 
+
+As a result, the eigenstate desired will have a `new' eigenvalue of $0$ (or very near, depending on accuracy of the estimate) - thus, if we invert the matrix, the result will have the same eigenvectors but reciprocal eigenvalues, which in the case of the desired eigenstate will be very large and tend towards $\infty$ with increasing accuracy. 
+
+Using the knowledge that the rate of convergence is proportional to eigenvalue magnitude, this shifted and inverted matrix will converge extremely rapidly to the desired eigenstate during subspace iteration, with increased speed if the accuracy to which the original estimate is known is increased.
+
+Based on this result, I developed a `Fast Boosted Optimiser Iteratiion' method to improve convergence rates for the eigensolver used to find bound states from my Hamiltonian. Another result used in the development of this approach is that a model with fewer grid points than another should still produce relatively correct eigenstates and eigenvalues, simply to a lower accuracy than a model with more grid points. 
+
+Based on these results, the general idea of this approach is to find the ground state eigenvalue for a model with a greatly reduced number of grid points, and then use this as an estimate in the `sigma' parameter of the eigensolver for the model with full number of grid points - greatly increasing the convergence rate for the full model at the cost of having to solve an extra, much smaller, problem. 
+
+Additionally, although only useful for models with a very large number of grid points, this approach can be stacked; a small model can generate an estimate ground state eigenvalue for a medium sized system, which can then generate a better estimate for the full very large system. Pseudo-code for the basic approach is described below, followed by  adaptions to allow several `boosting' stages.
+
+Basic FastBOI algorithm:
+
+definition of variables:
+\begin{itemize}
+
+	\item[-]{\textbf{x_full:} The grid points for the full accuracy model}
+	\item[-]{\textbf{x_red:} The grid points for the reduced accuracy model, it will have the same start- and end-points as x_full}
+	\item[-]{\textbf{boosting_factor:} The relative size of x_full to x_red}
+
+\end{itemize}
+
+\begin{lstlisting}
+function basic_fastboi(x_full, boosting_factor){
+	start, end, size = x_full[0], x_full[last], SIZE(x_full);
+	inc = (end - start) / (size / boosting_factor);
+	x_red = ARRAY();
+
+	for i = 0..(size / boosting_factor){
+		x_red[i] = start + i*inc;
+	}
+
+	H_red = generate_hamiltonian(x_red); 
+	est_GS_eigval, est_GS_eigvec = eigensolver(H_red, sigma = -B);
+	
+	/* where B is some arbitrarily large number such that B
+	   is definitely less than the real GS eigenvalue.
+	   Note: matching the output of ARPACK and LAPACK eigensolver outputs,
+	   only est_GS_eigval needed
+	*/ 
+	
+	H_full = generate_hamiltonian(x_full);
+	acc_GS_eigval, acc_GS_eigvec = eigensolver(H_full, sigma = est_GS_eigval);
+	
+	return (acc_GS_eigval, acc_GS_eigvec);
+}
+\end{lstlisting}
+
+As mentioned, this `boosted optimiser' approach can be stacked iteratively allowing a more accurate estimate to be generated for the full accuracy model, at less than the cost of solving a medium size model with an arbitrarily large negative number that would otherwise be needed. The adaption to the above algorthm to allow several boosting stages is described as follows, using a recursive approach;
+
+\begin{lstlisting}
+function fastboi(x_full, boosting_factor, num_boosts, estimate=-B){
+	start, end, size = x_full[0], x_full[last], SIZE(x_full);
+	inc = (end - start) / (size / (boosting_factor^num_boosts));
+	x_red = ARRAY();
+
+	for i = 0..(size / boosting_factor){
+		x_red[i] = start + i*inc;
+	}
+
+	H_red = generate_hamiltonian(x_red); 
+	est_GS_eigval, est_GS_eigvec = eigensolver(H_red, sigma=estimate);
+	
+	if (num_boosts > 0){
+		return fastboi(x_full, boosting_factor, num_boosts-1, est_GS_eigval);
+	}
+	else{
+		H_full = generate_hamiltonian(x_full);
+		acc_GS_eigval, acc_GS_eigvec = eigensolver(H_full, sigma = est_GS_eigval);
+		return (acc_GS_eigval, acc_GS_eigvec);
+	}
+}
+\end{lstlisting}
+
+\subsection{Pre-Trained Predictive Model Improvement}
+
+%----------------------------------------------------------------------------------------
+

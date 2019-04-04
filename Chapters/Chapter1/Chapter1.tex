@@ -1,0 +1,119 @@
+% Chapter 1
+
+\chapter{Background Theory} % Main chapter title
+
+\label{Chapter1} % For referencing the chapter elsewhere, use \ref{Chapter1} 
+
+%----------------------------------------------------------------------------------------
+
+% Define some commands to keep the formatting separated from the content 
+\newcommand{\keyword}[1]{\textbf{#1}}
+\newcommand{\tabhead}[1]{\textbf{#1}}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\file}[1]{\texttt{\bfseries#1}}
+\newcommand{\option}[1]{\texttt{\itshape#1}}
+
+%----------------------------------------------------------------------------------------
+
+\section{Overview of Relevent Quantum Theory}
+%This `baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
+
+%Is this an appropriate place for the above?
+
+%The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
+In this thesis, the interactions of laser pulses with quantum systems are investigated. The systems investigated are limited to Hydrogenic atoms; that is spherically-symmetric systems with a central attractive potential field; the Coulomb potential. Such systems allow several simplifications to calculations based on symmetry, while still remaining useful models of many real molecules, atoms, or sub-atomic particles. Before describing the mathematical models used in the investigation, some relevant quantum theory, numerical analysis, and computational methods are revisited.
+
+\subsection{Schrodinger Equation In Multiple Forms}
+The `Schrodinger Equation' describes the wavefunction of a quantum system, and how that wavefunction changes dynamically with time *TODO - add source for this*. In it's most general, time-dependent, form the Schrodinger equation is written;
+$$
+i\hbar \frac{d}{dt}\ket{\Psi\left(t\right)} = \hat{H}\ket{\Psi\left(t\right)} 
+$$
+(where $\hbar$ is Planck's constant, $\Psi$ is the wavefunction of the system, and $\hat{H}$ is the Hamiltonian of the system)\newline
+*Should I go into more detail on the Hamiltonian?*
+\newline
+To get a `snapshot' of the wavefunction at a given instant, the time-independent Schrodinger equation (TISE) can be considered;
+$$
+E\ket{\Psi} = \hat{H}\ket{\Psi} 
+$$
+(where $\Psi$ is the wavefunction of the system at the particular `t' of the snapshot, and $E$ is the energy of the system)\newline
+This equation can be solved as an eigenvalue problem, where the wavefunction of the system can be described in terms of eigenfunctions of the Hamiltonian - each with associated energy corresponding to the eigenfunctions' eigenvalues.\newline
+
+For a system with a single non-relativistic particle, under the influence of an external potential $V$, the TISE can be written in differential form;
+$$
+\left[\frac{-\hbar^{2}}{2m}\nabla^{2} + V\left(\mathbf{r}\right)\right] \Psi\left(\mathbf{r}\right) = E\Psi\left(\mathbf{r}\right)
+$$
+
+The radial time-independent Schrodinger equation (R-TISE) is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom.% - for both a Coulomb Potential or a Soft-Core Potential.
+Making this simplification allows the, generally 3D, TISE to be re-written in spherical coordinates and the two angular terms to be discounted (as the wavefunction has no dependence on the angluar directions). The result is a more easily solvable, 1D, partial differential equation;
+$$
+\left[\frac{-\hbar^{2}}{2m}\frac{d^2}{dr^2} + V\left(r\right)\right] \Psi\left(r\right) = E\Psi\left(r\right)
+$$
+
+%\subsection{The Hydrogenic Model}
+%Taylor expansion: 
+
+
+\subsection{Multi-Electron Systems}
+No idea what I was planning to do here.
+\newline
+Statement that Schrodinger Eqn still valid, and description of new Hamiltonian? Possibly also statement about if it is/isn't analytically solvable?
+%\begin{itemize}
+%\item[-]Sparse: \\ Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices
+%\item[-]Hermitian: \\ asdfabsdflkajsnkja nds kljand akjs aksj lkajs nalkjs nalkjn  lka nalk  alk na ksjna knja kjna ;kjna;j na jn;jndav k;aj n
+%\end{itemize}
+
+\section{Overview Of Finite Difference Methods}
+
+\subsection{Relation to Taylor Series}
+a lkjnasd lka a la lkjasd la lksad lak a
+
+\subsection{Comparison To Basis Expansion Methods}
+Splines:
+
+Fourier Expansions:
+
+
+\subsection{Stability Considerations}
+Von Neumann relation
+Defn. (Stability): A F.D. scheme is `stable' if the errors at a given timestep do not cause subsequent errors to be magnified.
+Graphs displaying unstable and stable solutions?
+
+\subsection{Backwards \& Central Finite Difference Methods \& Stiff Equations}
+look into that report I wrote last year
+
+\subsection{Calculation of Finite Difference Coefficients}
+Show without proof?
+include code/pseudo-code?
+
+\section{Parallel Computation Overview}
+\subsection{Types Of Parallelism}
+There are three main types of parallelism \cite{IntroToParComp};
+\begin{itemize}
+	\item[-]{\textbf{Shared Memory Systems}: These are systems consisting of several processors that are all able to access a shared memory}
+	\item[-]{\textbf{Distributed Systems}: These are systems with several seperate `units', each with a processor and individual memory, which connect to each other over a network}
+	\item[-]{\textbf{Graphic Processing Units}: These are used as co-processors, to perform highly parallelised numerical tasks given to them by a main processor}
+\end{itemize}
+
+Additionally, there are three main approaches to implementing parallelism, each roughly corresponding to one of the above `types' of parallelism \cite{IntroToParComp};
+\begin{itemize}
+	\item[-]{\textbf{Multi-Threading}: TODO}
+	\item[-]{\textbf{Message Passing}: TODO}
+	\item[-]{\textbf{Stream Based}: TODO}
+\end{itemize}
+
+%\subsection{Shared \& Distributed Memory}
+%dfgaljsdf lkjdhf adslkjn asdja alksjnda lknas lakn KJN Kdsf lk
+
+\subsection{OpenMP \& MPI}
+OpenMP is a leading software utility used for implementing multi-threaded programs via an exposed API accessible for . As mentioned above, multi-threaded programs are usually based around a shared memory system,...
+TODO: dangers (race conditions)
+TODO: basic usage of OpenMP, advantages (easy parallelisation of for loops) / disadvantages
+
+MPI (Message Passing Interface) is another software utility, used for communication across a distributed system...
+TODO: dangers of MPI (find out)
+TODO: basic usage, advantages / disadvantages, differences from OpenMP
+\subsection{Parallelisationability Of F.D. Methods}
+As described in chapter (?), spatial finite difference methods can approximate solutions to problems over a specified range, with given boundary conditions at the end points. The solution at each point can then be projected through time with a time propagator. If a finite difference time propagator is used, the initially specified range can be split up into several sub-ranges, each of which can be propagated independently - although they will lose accuracy at the end points of the sub-ranges over time. This can be rectified with message passing to update end point values based on neighbouring sub-range's end points periodically
+
+
+%----------------------------------------------------------------------------------------
