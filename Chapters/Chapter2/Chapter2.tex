@@ -1,42 +1,68 @@
 % Chapter 2
 
-\chapter{Baseline Solution of Radial TISE for Hydrogenic Atom with a Soft-Core Potential} % Main chapter title
+\chapter{Time Independent Case - A Starting Point} % Main chapter title
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
 %----------------------------------------------------------------------------------------
 
+\section{Central Finite Difference Methods}
+*Assume overview of FD methods covered in Ch.1*
+\subsection{Backwards Terms}
+In Chapter 1, we introduced the `1 point forward finite difference' method; an alternative to this approach is to use a `backwards finite difference' method, where instead of approximating 
+\begin{equation*}
+    \delta f\left(x\right) \simeq \frac{f\left(x + h\right) - f\left(x\right)}{h}
+\end{equation*}
+we instead approximate it as 
+\begin{equation*}
+    \delta f\left(x\right) \simeq \frac{f\left(x\right) - f\left(x - h\right)}{h}
+\end{equation*}
+i.e., approximating each point from the succeeding point rather than preceding. 
+These are both accurate to a tolerance of $O(h)$, and provide reasonable approximations in cases where there are no sharp peaks or discontinuities in the function over intervals narrow with respect to $h$, as these features can either be missed or cause $\delta f(x)$ to be poorly approximated in these areas. One way to obtain a more accurate estimate of $\delta f(x)$, and limit the impact of potential peaks / discontinuities is to use a `central finite difference' method;
+\begin{equation*}
+    \delta f\left(x\right) \simeq \frac{f\left(x + h\right) - f\left(x - h\right)}{2h}.
+\end{equation*}
+It can be seen easily here that the same number of function calls to $f$ are required here, and so the computational expense is the same as previously, but we obtain an estimate accurate to $O(h^{2})$. Additionally, by using both forward and backward points, we limit the impact of sharp features in the function over the interval.
 
-\section{Derivation of Radial TISE approximation}
-This 'baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an electron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
+\subsection{End Points}
+We have seen that a CFD method will give us a more accurate approximation to $\delta f(x)$, provided that we know the values of the function at points to either side of the point in question; this leads to the problem that at the end points of our interval, we won't know one of these points. There is no singular solution to this problem, as this CFD approach can be applied to a wide variety of problems. In our case, from physical intuition we know that at distances far away from the particle the wavefunction should be near-zero - using this we can choose to model $f(\alpha)$ for any $\alpha$ outside of our interval as $0$, allowing us to use the CFD even at the end points.
 
-Is this an appropriate place for the above?
-
-The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
-
-\subsection{Derivation of Radial Equation from Time Independent Scrodinger Equation}
-lksdlkjasd kalsjdnf alksjd fakjn a lkjnasd lka a la lkjasd la lksad lak a
-as akjs ka lka alk lllasd l
-asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
-assdf as kjdnfasd
-
-\subsection{Derivation of Matrix Central Finite Difference (MCFD) from Taylor Series}
-Taylor expansion: 
-
-
-\subsection{Useful Properties of MCFD Method}
+\subsection{Getting Coefficients}
+In general, any number of points can be used for a finite difference method; with the expected accuracy of the approximation increasing with each additional point. In these cases, not all points contribute equally to the approximation. The set of ratios at which they contribute are called the `finite difference coefficients' of that finite difference scheme. These coefficients can be calculated by solving a system of linear equations;
+\begin{align*}
+\begin{pmatrix}
+1&1&...&1&1\\
+-p&-p+1&...&p-1&p\\
+(-p)^{2}&(-p+1)^{2}&...&(p-1)^{2}&p^{2}\\
+...&...&...&...&...\\
+...&...&...&...&...\\
+...&...&...&...&...\\
+(-p)^{2p}&(-p+1)^{2p}&...&(p-1)^{2p}&p^{2p}
+\end{pmatrix}{\begin{pmatrix}
+a_{-p}\\
+a_{-p+1}\\
+a_{-p+2}\\
+...\\
+...\\
+...\\
+a_{p}
+\end{pmatrix}} = {\begin{pmatrix}
+0\\
+0\\
+0\\
+...\\
+m!\\
+...\\
+0
+\end{pmatrix}}
+\end{align*}
+Where $p$ refers to the number of points being used in the approximation to either side of the point in question, $a_{i}$ is the $i^{\text{th}}$ coefficient, and $m$ is the order of the derivative being approximated. 
+\subsection{Useful Properties of CFD method in matrix form}
 \begin{itemize}
 \item[-]Sparse: \\ Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices
 \item[-]Hermitian: \\ asdfabsdflkajsnkja nds kljand akjs aksj lkajs nalkjs nalkjn  lka nalk  alk na ksjna knja kjna ;kjna;j na jn;jndav k;aj n
 \end{itemize}
 
-\section{Comparison Between Soft-Core Potential and Coulomb Potential}
-* Move out of here *
-a lkjnasd lka a la lkjasd la lksad lak a
-as akjs ka lka alk lllasd l
-asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
-assdf as kjdnfasd
-lsdkfgdlkfmsdlfgm lk oijfoi  laskdmaksd kadfoaskfv aksd
 
 \section{Implementation}
 
@@ -49,9 +75,11 @@ lsdkfgdlkfmsdlfgm lk oijfoi  laskdmaksd kadfoaskfv aksd
 
 \section{Results}
 
-\subsection{Results with no Potential (Particle In A Box)}
+\subsection{Expected Results for Particle In A Box, Soft-Core}
 
-\subsection{Results for Hydrogenic Atom with A Soft-Core Potential}
+\subsection{Propagator \& CFD Results with no Potential (Particle In A Box)}
+
+\subsection{Propagator \& CFD Results for Hydrogenic Atom with A Soft-Core Potential}
 
 \section{Optimisations}
 
