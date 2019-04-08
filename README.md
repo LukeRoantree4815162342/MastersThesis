@@ -26,7 +26,8 @@
 > Initial / baseline TISE solution implementations 
 >
 > Results; comparison with expectation for 
-  field-free and soft-core cases. (propagator & CFD)
+  field-free and soft-core cases. (propagator & CFD) <-- update, 
+  propagator doesn't work (never did?); instead FFD & BFD - good display of instability with FFD
 >
 > Optimisations;
 >> Sparse storage - max model size improvement, impact on max accuracy, limitations
@@ -44,7 +45,7 @@
 >
 > Analytic solution for field-free propagation
 >
-> omparison between propagators;
+> Comparison between propagators;
 >> Efficiency,
 >> 
 >> Accuracy 

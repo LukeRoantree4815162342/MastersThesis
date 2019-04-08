@@ -28,20 +28,20 @@ It can be seen easily here that the same number of function calls to $f$ are req
 We have seen that a CFD method will give us a more accurate approximation to $\delta f(x)$, provided that we know the values of the function at points to either side of the point in question; this leads to the problem that at the end points of our interval, we won't know one of these points. There is no singular solution to this problem, as this CFD approach can be applied to a wide variety of problems. In our case, from physical intuition we know that at distances far away from the particle the wavefunction should be near-zero - using this we can choose to model $f(\alpha)$ for any $\alpha$ outside of our interval as $0$, allowing us to use the CFD even at the end points.
 
 \subsection{Getting Coefficients}
-In general, any number of points can be used for a finite difference method; with the expected accuracy of the approximation increasing with each additional point. In these cases, not all points contribute equally to the approximation. The set of ratios at which they contribute are called the `finite difference coefficients' of that finite difference scheme. These coefficients can be calculated by solving a system of linear equations;
+In general, any number of points can be used for a finite difference method; with the expected accuracy of the approximation increasing with each additional point. In these cases, not all points contribute equally to the approximation. The set of ratios at which they contribute are called the `finite difference coefficients' of that finite difference scheme. These coefficients can be calculated by solving a system of linear equations (* CITE *);
 \begin{align*}
 \begin{pmatrix}
 1&1&...&1&1\\
--p&-p+1&...&p-1&p\\
-(-p)^{2}&(-p+1)^{2}&...&(p-1)^{2}&p^{2}\\
+-q&-q+1&...&p-1&p\\
+(-q)^{2}&(-q+1)^{2}&...&(p-1)^{2}&p^{2}\\
 ...&...&...&...&...\\
 ...&...&...&...&...\\
 ...&...&...&...&...\\
-(-p)^{2p}&(-p+1)^{2p}&...&(p-1)^{2p}&p^{2p}
+(-p)^{p+q}&(-p+1)^{p+q}&...&(p-1)^{p+q}&p^{p+q}
 \end{pmatrix}{\begin{pmatrix}
-a_{-p}\\
-a_{-p+1}\\
-a_{-p+2}\\
+a_{-q}\\
+a_{-q+1}\\
+a_{-q+2}\\
 ...\\
 ...\\
 ...\\
@@ -56,25 +56,47 @@ m!\\
 0
 \end{pmatrix}}
 \end{align*}
-Where $p$ refers to the number of points being used in the approximation to either side of the point in question, $a_{i}$ is the $i^{\text{th}}$ coefficient, and $m$ is the order of the derivative being approximated. 
+Where $p$ refers to the number of backward points being used in the approximation of the point in question and $q$ the number of forward points. For a CFD setup, $p=q$. 
+$a_{i}$ is the $i^{\text{th}}$ coefficient, and $m$ the order of the derivative being approximated. Cramer's rule, or another method, can then be used to solve the system of linear equations to obtain $\{a_{i}\}$.
+
+Finite Difference approximations, in cases like ours where function values at points outside the interval of interest are taken to be $0$, can be described in matrix form as an eigenvalue problem; 
+\begin{align*}
+    \left[\frac{-\hbar^{2}}{2m}\frac{d^2}{dr^2} + V\left(r\right)\right] \Psi\left(r\right) = E\Psi\left(r\right)\\
+\end{align*}
+can be approximated with a CFD method as
+\begin{align*}
+    \begin{pmatrix}
+        a_{0}+V\left(r_{0}\right)&a_{1}&...&a_{p}&0&...\\
+        a_{-1}&a_{0}+V\left(r_{1}\right)&...&...&...&...\\
+        ...&...&...&...&...&...\\
+        0&...&...&a_{-p}&...&a_{0}+V\left(r_{n}\right)
+    \end{pmatrix}\mathbf{\Psi_{i}\left(r\right)}\ =\ E_{i}\mathbf{\Psi_{i}\left(r\right)}.
+\end{align*}
+where $\{E_{i}\}$ and $\{\mathbf{\Psi_{i}}\}$ are eigenvalues and eigenvectors of the matrix; forming a basis set for all possible solutions. Further, physical significance can be inferred from these values; each eigenvalue corresponds to the energy of a distinct state, and states corresponding to negative energies are `bound' states.
+
+These energies and eigenstates can be found with an eigensolver algorithm, usually based on a variation of Krylov Subspace Iteration (* CITE SAAD *). 
+
 \subsection{Useful Properties of CFD method in matrix form}
 \begin{itemize}
-\item[-]Sparse: \\ Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices
-\item[-]Hermitian: \\ asdfabsdflkajsnkja nds kljand akjs aksj lkajs nalkjs nalkjn  lka nalk  alk na ksjna knja kjna ;kjna;j na jn;jndav k;aj n
+\item[-]Sparse: \\ From the above equation it can be seen that other than along the central diagonal, and a few off-central diagonals, all elements in the matrix are $0$; meaning that for a large model (high accuracy), the matrix is very sparse. Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices, due largely to the fact that they rely on repeated QR decomposition (* CITE SAAD *) which involves conversion to a Hessenberg matrix and then to a triangular matrix - which is much faster to do when the matrix is already almost in Hessenberg form (or already in Hessenberg form in the case of a three point or fewer method).
+\item[-]Hermitian: \\ As all of the finite difference coefficients are real, and assuming the arbitrary potential function $V$ is real-valued at all points, the entire matrix is real. Additionally, for any CFD method, the matrix is symmetric. Combining these two statements, we have that the matrix is Hermitian; knowing this we can choose the eigensolver carefully to make use of this, for example using one based on Lanczos iteration - a special case of Arnoldi iteration with stages removed due to knowledge that the matrix is Hermitian.
 \end{itemize}
 
-
 \section{Implementation}
-
-\subsection{Propagator Method and Limitations}
-
+\subsection{General Approach}
+\begin{itemize}
+    \item[>]{Set up a set of equally spaced points spanning an interval containing the particle}
+    \item[>]{Calculate the potential at each of the points}
+    \item[>]{Build a `baseline' Hamiltonian }
+    \item[>]
+    \item[>]
+\end{itemize}
 \subsection{Matrix Method and Benefits}
 
 \subsection{Solving the Matrix Method}
 * Make sure this includes at least an outline of krylov subspace iteration and preconditioning
 
 \section{Results}
-
 \subsection{Expected Results for Particle In A Box, Soft-Core}
 
 \subsection{Propagator \& CFD Results with no Potential (Particle In A Box)}
