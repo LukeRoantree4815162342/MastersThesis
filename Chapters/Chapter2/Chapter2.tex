@@ -74,8 +74,6 @@ can be approximated with a CFD method as
 \end{align*}
 where $\{E_{i}\}$ and $\{\mathbf{\Psi_{i}}\}$ are eigenvalues and eigenvectors of the matrix; forming a basis set for all possible solutions. Further, physical significance can be inferred from these values; each eigenvalue corresponds to the energy of a distinct state, and states corresponding to negative energies are `bound' states.
 
-These energies and eigenstates can be found with an eigensolver algorithm, usually based on a variation of Krylov Subspace Iteration (* CITE SAAD *). 
-
 \subsection{Useful Properties of CFD method in matrix form}
 \begin{itemize}
 \item[-]Sparse: \\ From the above equation it can be seen that other than along the central diagonal, and a few off-central diagonals, all elements in the matrix are $0$; meaning that for a large model (high accuracy), the matrix is very sparse. Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices, due largely to the fact that they rely on repeated QR decomposition (* CITE SAAD *) which involves conversion to a Hessenberg matrix and then to a triangular matrix - which is much faster to do when the matrix is already almost in Hessenberg form (or already in Hessenberg form in the case of a three point or fewer method).
@@ -85,23 +83,41 @@ These energies and eigenstates can be found with an eigensolver algorithm, usual
 \section{Implementation}
 \subsection{General Approach}
 \begin{itemize}
-    \item[>]{Set up a set of equally spaced points spanning an interval containing the particle}
-    \item[>]{Calculate the potential at each of the points}
-    \item[>]{Build a `baseline' Hamiltonian }
-    \item[>]
-    \item[>]
+    \item[>]{\textbf{Overview - Python tools}\\}
+    \item[>]{Set up a set of equally spaced points spanning an interval containing the particle - numpy.linspace}
+    \item[>]{Calculate the potential at each of the points - custom defined function}
+    \item[>]{Build a `baseline' Hamiltonian of FD coefficients along the appropriate diagonals and $0$ elsewhere - numpy.zeros}
+    \item[>]{Add the potential values to the central diagonal - no extra tool needed}
+    \item[>]{Use an eigensolver algorithm / tool to find eigenpairs of the Hamiltonian - numpy.linalg.eig}
 \end{itemize}
-\subsection{Matrix Method and Benefits}
 
-\subsection{Solving the Matrix Method}
-* Make sure this includes at least an outline of krylov subspace iteration and preconditioning
+\subsection{Notes On Finding Eigenpairs}
+Most eigensolvers, including all of the ones I use in the course of this investigation, are based on variations on Krylov Subspace Iteration. Krylov Subspace Iteration in turn is a particular case of Subspace Iteration, which is a generalised application of Power Iteration. To provide insight to how the eigensolvers work, and later optimisation techniques, I explain here in detail the Power Iteration method followed by outlines of adaptions to it for Subspace Iteration and how the outcome differs for that, followed by similar outlines for the other methods. 
+
+Power Iteration is a method for obtaining the dominant (largest corresponding eigenvalue) eigenvector, $x$, of a square matrix, $A$. Approximations to $x$ of increasing accuracy are given recursively by
+\begin{align*}
+	x_0 = \text{any non-zero random vector of the right length}
+	x_{n} = \frac{Ax_{n-1}}{||Ax_{n-1}||}
+\end{align*}
+
+We know from (* REF CH1 *) that an arbitrary vector, $V$ in the space described by $A$ can be spectrally decomposed into a weighted sum of eigenvectors, $\{e_{i}\}$ of $A$; $v = \sum_{i}{c_{i}e_{i}} for \{c_{i}\} \in \C$.
+
+Therefore we can write $A\mathbf{v}$ as $A\sum_{i}{c_{i}\mathbf{e_{i}}}$, and by orthogonality of eigenvectors we can rewrite this as $\sum_{i}{c_{i}\left(A\mathbf{e_{i}}}\right)$. By the definition of an eigenvector, each $A\mathbf{e_i}$ is equal to $\lambda_{i}\mathbf{e_i}$ where $\lambda_i$ is the eigenvalue of that eigenvector. This allows us to further re-write $A\mathbf{v}$ as $\sum_{i}{c_{i}\left(\lambda_{i}\mathbf{e_{i}}\right)}$. From (* REF CH1 *), we additionally have that if $(\lambda,\mathbf{e})$ is an eigenpair of $B$, then $(\lambda^{k},\mathbf{e})$ is an eigenpair of $B^{k}$. Applying this here, we have that $A^{k}\mathbf{v}$ can be written as $\sum_{i}{c_{i}\left(\lambda_{i}^{k}\mathbf{e_{i}}\right)}$. From this it is clear that, for a high enough $k$, the term in the summation with the largest eigenvalue will be far larger than any other term - making it a good approximation for the most dominant eigenvalue after renormalisation. Additionally it can be seen that the error in this approximation can be estimated using the next-largest eigenvalue; $\epsilon \simeq |\frac{\lambda_1}{\lambda_2}|^{k}$ where $\lambda_1, \lambda_2$ are the two most dominant eigenvalues. This shows that the rate of convergence is given by $|\frac{\lambda_1}{\lambda_2}|$.
+
+Subspace Iteration is an extension to Power Iteration, where a set of $m$ random vectors are initialised instead of onle one, and these are repeatedly multiplied by $A$, then orthonormalised with respect to each other (as opposed to simply normalised like the Power Iteration method). The orthonormalisation process, usually done via repeated QR decomposition, ensures that the initial vectors will not all converge to the same, largest, eigenvector - instead one will converge to the next most dominant one, another to the third most, all the way to the $m^{\text{th}}$ most dominant.
+
+Krylov Subspace Iteration is a special case of Subspace Iteration where the initial subspace is not fully random vectors, and is instead built from a single random vector, $\mathbf{b}$, such that the subspace consists of vectors $\{\mathbf{b}, A\mathbf{b},...,A^{m}\mathbf{b}\}$. One reason to use a Krylov subspace over a randomised one is that vectors in the Krylov subspace will have large spectral components for dominant eigenvectors, as shown in the above proof of Power Iteration convergence. This results in in a reduced number of subspace iterations needed for convergence.
+
+Other improvements on these methods exist, including the `implicitly restarted Arnoldi' method and `Hermitian Lanczos' method - which I do not describe further here, other than to describe the Lanczos method as being able to ignore redundant steps in the case that $A$ is Hermitian.
+
+In this investigation, while I made use of these results through eigensolver choice and parameter tuning, I did not recreate any of these algorithms directly; instead opting to make use of existing implementations in LAPACK and ARPACK, ported to Python through the Numpy and Scipy libraries.
 
 \section{Results}
 \subsection{Expected Results for Particle In A Box, Soft-Core}
 
-\subsection{Propagator \& CFD Results with no Potential (Particle In A Box)}
+\subsection{Three-Point CFD, FFD, BFD Results with no Potential (Particle In A Box)}
 
-\subsection{Propagator \& CFD Results for Hydrogenic Atom with A Soft-Core Potential}
+\subsection{Three-Point CFD, FFD, BFD Results for Hydrogenic Atom with Soft-Core Potential}
 
 \section{Optimisations}
 
