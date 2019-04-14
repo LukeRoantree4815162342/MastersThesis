@@ -136,7 +136,7 @@ where $L$ is the width of the interval.
 
 These $\Psi$s are all eigenstates for the system, and so an arbitrary wavefunction in the system can be written as a combination of these. From the mathematical description of the eigenstates we see that the ground state should have exactly one turning point, the first excited state should have 2, and so on - as well as maintaining constant wavelength throughout the wave.
 
-A visual representation (* CITE Hyperphysics *) of the first few of these states is given below for qualitative comparison with the simulated results;
+A visual representation (* CITE Hyperphysics *) of the first few of these states is given below for qualitative comparison with the simulated results (using 20 thousand grid points);
 
 \begin{figure}[H]
 	\includegraphics[width=0.5\textwidth]{./particleinabox.png}
@@ -144,13 +144,14 @@ A visual representation (* CITE Hyperphysics *) of the first few of these states
 	\caption{Expected First Few Excited States for a Particle-In-A-Box System}
 \end{figure}
 
-
 \subsection{Three-Point CFD, FFD, BFD Results with no Potential (Particle In A Box)}
 \begin{figure}[H]
 	\includegraphics[width=0.75\textwidth]{./particleinaboxCFD.png}
 	\centering
 	\caption{First Few Excited States of Particle-In-A-Box System Calculated by CFD}
 \end{figure}
+
+These results qualitatively mimic the expected ones very closely, with the same numbers of nodes, symmetries, and constant wavelengths. This provides a good indication that this is a good method to use for other, more extravagent, models.
 
 \begin{figure}[H]
 	\includegraphics[width=0.75\textwidth]{./particleinaboxFFD.png}
@@ -163,6 +164,9 @@ A visual representation (* CITE Hyperphysics *) of the first few of these states
 	\centering
 	\caption{First Few Excited States of Particle-In-A-Box System Calculated by BFD}
 \end{figure}
+
+For both the Forward and Backwards Finite Difference calculations, large stability issues are easily seen. As the same order of finite difference method, and so the same computational expense, was used in all three of these calculations, it is clear that the CFD method is the only one worth developing further. As stated earlier, the CFD method should be accurate to $O(h^{2})$, while the FFD and BFD methods are only accurate to $O(h)$ - this combined with decreased stability resilience resulted in the above calculations, which are not representative of the analytic solutions at all.
+
 \section{Optimisations}
 
 \subsection{Sparse Storage}
