@@ -42,7 +42,10 @@ headsepline, % Uncomment to get a line under the header
 \usepackage[T1]{fontenc} % Output font encoding for international characters
 
 \usepackage{mathpazo} % Use the Palatino font by default
-
+%\usepackage[subsection]{placeins}
+\usepackage{float}
+\usepackage{graphicx}
+\graphicspath{{./Figures/}}
 %\usepackage[backend=bibtex,style=authoryear,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 \usepackage[backend=bibtex,natbib=true]{biblatex} % Use the bibtex backend with the authoryear citation style (which resembles APA)
 \usepackage{siunitx}
@@ -112,6 +115,7 @@ headsepline, % Uncomment to get a line under the header
 \department{\href{http://department.university.com}{CTAMOP}} % Your department's name and URL, this is used in the title page and abstract, print it elsewhere with \deptname
 \group{\href{http://researchgroup.university.com}{RMT Group}} % Your research group's name and URL, this is used in the title page, print it elsewhere with \groupname
 \faculty{\href{http://faculty.university.com}{School of Mathematics and Physics}} % Your faculty's name and URL, this is used in the title page and abstract, print it elsewhere with \facname
+
 
 \AtBeginDocument{
 \hypersetup{pdftitle=\ttitle} % Set the PDF's title to your title
