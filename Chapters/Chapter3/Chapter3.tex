@@ -7,8 +7,28 @@
 %----------------------------------------------------------------------------------------
 
 
-\section{Baseline: Analytic Solution for Field-Free Propagation}
-This 'baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
+\section{Time Evolution of a Quantum State}
+The evolution of a quantum state can be described fully by the Schr\ddot{o}dinger equation, in it's time-dependent form, which we will refer to from now as the TDSE. The TDSE states that an arbitrary quantum state, $\Psi$, will evolve according to;
+$$ 
+i \hbar \frac{\partial}{\partial t} \Psi=H \Psi,
+$$
+where H is the Hamiltonian of the system, and is in general also time-dependent. We now consider the case where the Hamiltonian does not evolve with time - this is a much easier case to solve, in fact only a few particular systems with non-constant Hamiltonians are analytically solvable. We will investigate these numerically later in this chapter.
+
+Solving this equation, we obtain 
+$$
+\Psi\left(t\right) = e^{\frac{i}{\hbar}Ht}\Psi\left(0\right),
+$$
+where a constant of integration has been neglected as it amounts to a global phase-shift.
+
+By spectrally decomposing $\Psi$ into it's component eigenstates, $\sum_{i}{c_{i}\mathbf{e_{i}}}$, we can rewrite this as;
+$$
+\Psi\left(t\right) = \sum_{j}{e^{\frac{i}{\hbar}\lambda_{j}t}c_{j}\mathbf{e_{j}}\left(0\right)},
+$$
+allowing us to see that each individual eigenstate oscillates in amplitude, with a frequency determined by the energy of the eigenstate.
+
+Solutions for this case can therefore be quickly and accurately calculated if the eigenstates are already known, and so we can use this case to compare to our numerical model solutions to measure their accuracy.
+
+%This 'baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
 
 Is this an appropriate place for the above?
 

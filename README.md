@@ -38,31 +38,77 @@
 >>
 >> Meta-Knowledge Optimiser Method - use cases, relation to BOM, description of one-off pseudo data generation & shape descriptions, (overview of ML?), table of speed comparisons, advantages over BOM, limitations w.r.t. BOM
 
-### Chapter 3: TDSE (all)
+### Chapter 3: TDSE Implementation
 > Introduce FFD and Krylov Subspace Propagator approaches
 >
-> Explain weak & strong scaling testing
+> Analytic / Exact Solutions:
+>> Cases where analytic solutions are possible / why some are difficult/impossible
+>>
+>> Some approaches to approximating solutions (pertubation theory?)
+>>
+>> Full derivation for field-free case, and why it's a good check for numerical methods
 >
-> Analytic solution for field-free propagation
+> Numerical Approximations by Propagating TISE sols;
+>> Allows investigation of analytically difficult / unsolvable problems - motivation
+>>
+>> Can use similar methods to our TISE approach, but propagating through time not space 
+>>
+>> We need to re-calculate the Hamiltonian at every timestep as it changes with time
+>
+> FD Propagator;
+>> Uses same method for generating FD coefficients as TISE sol
+>>
+>> Note: can't use any Backwards terms in FD scheme as we don't have knowledge of next steps (unlike in space)
+>>
+>> To start, we need to know how the wavefunction changes for the first few timesteps without using FD method
+>> - use analytic solution for Field-Free propagation, explain implications of this
+>
+> Krylov Subspace Propagator;
+>> Explain how subspace is built (this one in particular, assume knowledge of in general)
+>>
+>> How next state is calculated via projection
+>>
+>> Why there is no need for Field-Free propagation at the start
 >
 > Comparison between propagators;
->> Efficiency,
+>> Efficiency - [big/small] systems, for [long/short] times,
 >> 
->> Accuracy 
+>> Accuracy - [big/small] systems, for [long/short] times
+>> comparing to analytic solutions for Field-Free case
 >
-> Simulation of different external potentials;
->> DC drift,
+> Parallelisation of FD propagator;
+>> Splitting up the Hamiltonian & analogue to considering seperate regions of space
 >>
->> laser pulse,
+>> pseudocode / diagram to describe process
 >>
->> Effects on wavefunction evolution (qualitative)
->
-> Parallelisation of FFD propagator;
->> comparison on a laptop (weak & strong scaling)
->> 
->> comparison on a server cluster (weak & strong scaling)
+>> implications at region boundaries
+>>
+>> boundary implications on accuracy over time and over level of parallelism
+>>
+>> methods of limitting this effect - overlapping boundaries, sharing datapoints between regions & efficiency implications for this
+>>
+>> Definition of weak & strong scaling
+>>
+>> comparisons (weak & strong scaling)
 
-### Chapter 4: RMT
+### Chapter 4: Investigation of Interesting Potentials
+> DC drift;
+>> definition (math), qualitative explanation, physical interpretation
+>>
+>> results @ different time steps
+>> 
+>> impacts of varying field strength
+>
+> Laser Pulse;
+>> definition (math), qualitative explanation, physical interpretation
+>>
+>> results @ different time steps
+>> 
+>> impacts of varying field strength
+>>
+>> impacts of varying packet width
+
+### Chapter 5: RMT
 > Overview of R-Matrix origins, work being done, goals/capabilities of RMT, qualitative explanation of operation
 >
 > Currently available options for parallelised time-propagation, differences, main bottlenecks
