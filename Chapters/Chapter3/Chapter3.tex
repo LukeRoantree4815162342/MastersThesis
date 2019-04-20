@@ -175,11 +175,21 @@ Additionally this shows that in order to approximate the wavefunction at a given
 For both of these propagators the critical magnitude of the timestep before instability depends on the size of the gap between grid points. We investigated this by repeating the experiments using a larger number of grid points over the same interval (100,000 vs. 1,000). As it has already been shown that either instabilities will cause the error to quickly grow, or the error will remain fairly constant during propagation if the model is stable, we only need to compare the errors after a relatively small number of timesteps in order to determine the accuracy of the model. For this purpose, we will propagate for only 300 timesteps.
 
 \subsubsection{CASE 5 - dt = $10^{-4}$, Grid Size = 100000, End Time = 0.03, propagation order = 6}
-Krylov Subspace Error: 3.775721957310907e-10\newline
+Krylov Subspace Error: -103435.8494626187\newline
 Finite Difference Error: 0.9999999999723448 
 
+\subsubsection{CASE 6 - dt = $10^{-5}$, Grid Size = 100000, End Time = 0.003, propagation order = 6}
+Krylov Subspace Error: 0.8971347740628693\newline
+Finite Difference Error: 4.440892098500626e-16
 
+\subsubsection{CASE 7 - dt = $10^{-7}$, Grid Size = 100000, End Time = 0.00003, propagation order = 6}
+Krylov Subspace Error: 0.9999999999999252\newline
 
+\subsubsection{CASE 8 - dt = $10^{-8}$, Grid Size = 100000, End Time = 0.000003, propagation order = 6}
+Krylov Subspace Error: 4.440892098500626e-16\newline
+
+\subsubsection{Analysis:}
+Here we can see that when we use more grid points we need to decrease the size of the timestep to maintain stability. We see that for a grid 100 times the size, we need to decrease the the size of the timestep by around 2 orders of magnitude for the FD propagator to achieve stability, while the Krylov Subspace propagator needs the timestep to be decreased by around 4 orders of magnitude. From this we can conclude that the accuracy and stability of the solutions scale more effectively with the FD propagator than the Krylov Subspace propagator as the number of grid points increases.
 
 %----------------------------------------------------------------------------------------
 
