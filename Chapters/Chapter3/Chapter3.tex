@@ -214,6 +214,47 @@ The figure below shows an example of this; where the wavefunction was split into
 These `reflections' should actually occur even for the non-parallelised case, except that in this case the assumption that the wavefunction is 0-valued beyond the edges is actually a good assumption and closely approximates the physical system. From the description of the cause of these reflections, it can be seen that the impact of these reflections depend on how far from 0 the wavefunction should be at the boundaries - for example, in the above figure we have that the chunk boundaries are at the peak of the wavefunction, and so this is a worst-case scenario. We now consider methods of mitigating the errors introduced by these reflections.
 
 \subsection{Avoiding Problems At Chunk Edges}
+As mentioned previously, there are several approaches to limiting or avoiding the errors introduced by reflections. One such method is to share knowledge of the values of a few spatial points of the chunked wavefunctions with their neighbouring chunks after every few timesteps; allowing the neighbours to re-adjust their wavefunction based on this knowledge - this is the approach used in RMT, which we will see in more detail in Chapter 5. A diagram describing this process is given below;
+
+
+
+Limitations of this method include that requiring communication between chunks is costly, and limits the advantage of parallelisation as the subprocesses can no longer operate fully independently. For example, if the propagation was split across three computers, one of which was far slower than the other two and information about edge points was shared every 10 timesteps; although each computer would only need to perform one third of the total number of calculations, the two fast computers are only able to calculate up to 10 timesteps further before being stalled to wait for the third computer. If information did not need to be shared, the two fast computers could complete their calculations without needing to wait for the third. 
+
+This cost can be limited, by either ensuring all computers perform similarly or by varying the size of the chunks to match the performance of the comuter propagating them such that they can all propagate their chunk at around the same speed. The communication of edge information between computers itself also has an associated computational cost, which cannot be as easily limited.
+
+
+Another method of avoiding problems at the edges of chunks is to `overlap' chunks. If, for example, 10 extra spatial points are given to each chunk on either side - and knowing that after propagation the errors caused by reflections mostly affect the outermost spatial points, then the next most outermost, and so on - then provided we haven't propagated far enough for the reflections to permeate too deeply into the wavefunction chunk the errors are almost entirely confined to the outer 10 spatial points. As these were `extra' points we stuck on to each chunk, we can simply discard their values, then recombine the remainder of our chunks to form the full wavefunction with the errors caused by reflections almost entirely ignored. 
+
+The process described is explained in the diagram below;
+
+
+
+In the event that we want to propagate further in time, the errors caused by reflections will come further inside the chunked wavefunction. We can avoid this by increasing the number of spatial points used in the overlap, although this will increase the computational cost of propagation. 
+
+Limitations of this method include that extra calculations (in the overlapped regions) need to be performed, increasing the overall computational cost, and these costs only increase with further time propagation meaning it does not scale well for large end times. However, relatively few overlap points are needed to mitigate most of the errors, and the there is an exponential decay on the impact of reflection errors as you move further from the edges - and so the rate of increase of the number of extra spatial points needed to propagate to the end time reduces as the end time grows. 
+
+An advantage this approach has over the last is that no communication is needed between the chunks; due to this there is no additional communication cost, and the wavefunction and Hamiltonian can be split into more chunks than there are computers - reducing the amount of work needed to propagate each chunk and allowing any faster computers to immediately start working on the next chunk upon completion of a chunk propagation, rather than waiting for the propagation of the other chunks to finish first.
+
+\subsection{Efficiency Testing}
+ARCHER (* CITE *) define several quantities; `Speed-Up' ($S$), `Parallel Efficiency' ($E_{\text{par}}$), and `Serial Efficiency' ($E_{\text{ser}}$) which we will use to evaluate the effectiveness of our parallelisation. These quantities are defined in terms of execution time, $T$.
+\begin{itemize}
+	\item[-]{\textbf{Speed-Up: }
+		$$
+		S\left(N,P\right) = \frac{T\left(N,1\right)}{T\left(N,P\right)}
+		$$}
+
+	\item[-]{\textbf{Parallel Efficiency: }
+		$$
+		E_{\text{par}}\left(N,P\right) = \frac{S\left(N,P\right)}{P} = \frac{T\left(N,1\right)}{PT\left(N,P\right)}
+		$$}
+
+	\item[-]{\textbf{Serial Efficiency: }
+		$$
+		E_{\text{ser}}\left(N\right) = \frac{T_{\text{best}}\left(N\right)}{T\left(N,1\right)}
+		$$}
+\end{itemize}
+Where $N, P$ are the size of the problem and number of processors respectively.
+
 
 
 %----------------------------------------------------------------------------------------
