@@ -191,5 +191,30 @@ Krylov Subspace Error: 4.440892098500626e-16\newline
 \subsubsection{Analysis:}
 Here we can see that when we use more grid points we need to decrease the size of the timestep to maintain stability. We see that for a grid 100 times the size, we need to decrease the the size of the timestep by around 2 orders of magnitude for the FD propagator to achieve stability, while the Krylov Subspace propagator needs the timestep to be decreased by around 4 orders of magnitude. From this we can conclude that the accuracy and stability of the solutions scale more effectively with the FD propagator than the Krylov Subspace propagator as the number of grid points increases.
 
+\subsection{Summary of Findings}
+
+\section{Parallelisation of the Time Propagation}
+We have seen in this chapter that, assuming stability conditions are met and enough propagation terms are used, either propagator can give results at a very high level of accuracy at even distant times - with the largest limit on accuracy coming from the number of spatial grid points used to model the wavefunction. Therefore, to increase the overall accuracy we need to use a more accurate spatial representation with more grid points. 
+
+However, as seen in the above `efficiency' comparisons, our time propagation speeds do not scale well with increased spatial grid size. 
+
+To try to reduce this problem as much as possible, the propagators were parallelised - allowing different chuncks of the wavefunction to be propagated separately on different computers/processors/cores. 
+
+To do this, both the wavefunction and the Hamiltonian were split into `chunks' - this is equivalent to considering the time evolution of subrergions of our interval seperately, and so they can be recombined afterwards to re-form the full evolved wavefunction. A diagram describing this process is shown below;
+
+
+
+\subsubsection{Is Any Information Lost When The Propagation Is Split Up?}
+In short, yes, although the amount can be mitigated through a few different methods. The reason we lose information, or accuracy, is that by splitting up the spatial region we introduce new boundaries in the system at the edges of the chunks. These boundaries effectively force the wavefunction to drop to 0 at any distance past the edge of the chunk, although this itself is not important as at distances past the chunk's edge the next chunk is simply used instead. What is important is that during propagation, the wavefunction inside each chunk thinks the rest of the wavefunction is 0-valued - this causes `reflections' at the boundaries, which cause inaccuracies at the edges of the chunks and can start to cause inaccuracies further and further within the chunk over time. 
+
+The figure below shows an example of this; where the wavefunction was split into two equally sized chunks, propagated seperately for 1000 timesteps, then recombined. It can be seen that there are large differences from the expected result at the centre, but elsewhere a very accurate result is obtained.
+
+
+
+These `reflections' should actually occur even for the non-parallelised case, except that in this case the assumption that the wavefunction is 0-valued beyond the edges is actually a good assumption and closely approximates the physical system. From the description of the cause of these reflections, it can be seen that the impact of these reflections depend on how far from 0 the wavefunction should be at the boundaries - for example, in the above figure we have that the chunk boundaries are at the peak of the wavefunction, and so this is a worst-case scenario. We now consider methods of mitigating the errors introduced by these reflections.
+
+\subsection{Avoiding Problems At Chunk Edges}
+
+
 %----------------------------------------------------------------------------------------
 
