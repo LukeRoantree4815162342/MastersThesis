@@ -255,7 +255,43 @@ ARCHER (* CITE *) define several quantities; `Speed-Up' ($S$), `Parallel Efficie
 \end{itemize}
 Where $N, P$ are the size of the problem and number of processors respectively.
 
+Amdahl (* cite archer *) stated in 1967 that "The performance improvement to be gained by parallelisation is limited by the proportion of the code which is serial". Effectively, this means that a given process can be approximated by a part or parts that is non-parallelisable and a part or parts that are; and so even with the best parallelisation scheme the process will take at least as long as the non-parallelisable parts take to run. 
+
+He exteds this concept into `Amdahl's law'; given a process that has a fraction, $\alpha$, that is completely serial and that the rest is a perfectly efficient parallel scheme, we can describe the parallel runtime and speedup as follows:
+$$
+T(N, P)=\alpha T(N, 1)+\frac{(1-\alpha) T(N, 1)}{P}\\
+S(N, P)=\frac{T(N, 1)}{T(N, P)}=\frac{P}{\alpha P+(1-\alpha)}
+$$
+
+From these, we can see that a parallel scheme will only be worthwhile if the serial part, $\alpha$, is small. 
+
+To properly investigate the benefit of our parallel scheme, we need to investigate both the Parallel and Serial Efficiencies. This was performed on a server cluster, AIGIS (node aigis11), which has 32 available cores - each capable of running 2 threads and with a clock speed of 2.3GHz. 
+
+\subsubsection{Parallel Efficiency}
+The parallel efficiency of our setup was investigated by timing the propagation of a wavefunction with 50,000 spatial grid points 10,000 timesteps, using between 1 and 32 cores. The following results were obtained;
+
+\begin{figure}[H]
+         \includegraphics[width=\textwidth]{./ParEffCurve.png}
+         \centering
+         \caption{Parallel Efficiency Curve}
+\end{figure}
 
 
+Figure <x> shows that the rate of speedup for our scheme falls as the number of additional processors increases, although only a little; from the first additional processor to the thirty-first additional one, we only see an efficiency drop of around 0.2. So although there is a reducing amount of benefit from each additional processor, scheme still performs well on our server cluster - as it is limited to 32 cores, and our scheme has a reasonable benefit from each additional core even until all available cores are used here.
+
+\subsubsection{Serial Efficiency}
+The serial efficiency of our parallelised model was investigated by timing the propagation of a wavefunction with between 250 and 41,000 spatial grid points for 10,000 timesteps using both our `best' parallelisation scheme and the non-parallelised scheme. I took the `best' scheme to be the case where we use 31 cores, as it performed very similarly to when using the full 32 cores and as it was less likely to be interupted if anyone else started a job on the same node at the same time. The graph below describes the resuts;
+
+\begin{figure}[H]
+         \includegraphics[width=\textwidth]{./SerialEff.png}
+         \centering
+         \caption{Serial Efficiency Curve}
+\end{figure}
+
+
+
+Figure <x2> shows an increasing benefit ratio to using the parallelised scheme as the number of grid points grows, but this ratio converges at 17500 spatial grid points - after which the benefit ratio is fairly constant at around 0.04, showing that this scheme caps out at being around 25x faster than the non-parallelised version no matter how many additional processing units are given.
+
+\subsubsection{Comments}
 %----------------------------------------------------------------------------------------
 
