@@ -265,7 +265,9 @@ Amdahl (* cite archer *) stated in 1967 that "The performance improvement to be 
 
 He exteds this concept into `Amdahl's law'; given a process that has a fraction, $\alpha$, that is completely serial and that the rest is a perfectly efficient parallel scheme, we can describe the parallel runtime and speedup as follows:
 $$
-T(N, P)=\alpha T(N, 1)+\frac{(1-\alpha) T(N, 1)}{P}\\
+T(N, P)=\alpha T(N, 1)+\frac{(1-\alpha) T(N, 1)}{P}
+$$
+$$
 S(N, P)=\frac{T(N, 1)}{T(N, P)}=\frac{P}{\alpha P+(1-\alpha)}
 $$
 
