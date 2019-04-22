@@ -202,6 +202,12 @@ To try to reduce this problem as much as possible, the propagators were parallel
 
 To do this, both the wavefunction and the Hamiltonian were split into `chunks' - this is equivalent to considering the time evolution of subrergions of our interval seperately, and so they can be recombined afterwards to re-form the full evolved wavefunction. A diagram describing this process is shown below;
 
+\begin{figure}[H]
+         \includegraphics[width=\textwidth]{./ParallelScheme.png}
+         \centering
+         \caption{Description of Parallelisation Process For Time Propagation}
+\end{figure}
+
 
 
 \subsubsection{Is Any Information Lost When The Propagation Is Split Up?}
@@ -287,7 +293,6 @@ The serial efficiency of our parallelised model was investigated by timing the p
          \centering
          \caption{Serial Efficiency Curve}
 \end{figure}
-
 
 
 Figure <x2> shows an increasing benefit ratio to using the parallelised scheme as the number of grid points grows, but this ratio converges at 17500 spatial grid points - after which the benefit ratio is fairly constant at around 0.04, showing that this scheme caps out at being around 25x faster than the non-parallelised version no matter how many additional processing units are given.
