@@ -5,27 +5,101 @@
 \label{Chapter4} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
 %----------------------------------------------------------------------------------------
+\section{Qualitative Expectation for Results}
+Previously we saw that solutions to the TISE can be expressed as weighted sums of bound eigenstates, where each bound eigenstate corresponds to a distinct energy. It was also shown that if no external potential acts on the system these weights will not change as the wavefunction evolves with time; we used this fact to measure the accuracy of our propagators in the previous chapter. 
 
+The fact that these weights remain constant with no external potential being applied is equivalent to saying that the energy of the system remains constant under time evolution; this makes physical sense as a statement of the conservation of energy. When an external field is applied, the system will either gain or lose energy over time - and so these weights will change during time evolution. 
+
+As the weight / coefficient of each eigenstate corresponds to the probability of the system being in that state, by constructing appropriate time-dependent external potentials we can model how the probabilities of the system being in particular eigenstates changes in the event of some physical interactions; for example absorbing a laser pulse. 
+
+The rest of this chapter consists of investigating how the system, initially in the Ground State, evolves under the influence of different simulated interactions - by investigating the change to the Ground State population under the interactions over time.
 
 \section{DC Drift}
-\subsection{Potential Description}
-adfgadfga ag a ads a a sd fasd  tr df 
-\subsection{Effet On State Evolution}
-Is this an appropriate place for the above?
+Here we investigate the evolution of the system under a linearly growing (w.r.t. time) potential field; similar to a voltage applied from a DC power source.
 
-The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
+\subsection{Potential Description}
+We simulate the external potential term as $\alpha t \mathbf{r}$; where $\mathbf{r}$ is the spatial interval, $t$ is the time, and $\alpha$ is a constant to determine the intensity of the DC potential.
+
+This extra potential term was then added to the softcore potential, and the resulting total potential used along the central diagonal of the Hamiltonian.
+
+\subsection{Effect On State Evolution}
+Figure 4.1, below, shows the effect of the DC potential on the wavefunction (initially Ground State) over time.
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSDCwavefunction3times.png}
+          \centering
+          \caption{Effect of DC potential on wavefunction}
+\end{figure}
+From this figure, we see qualitatively that as time goes on the system is excited to higher and higher energies; shown through the increased numbers of turning points, and their relative magnitudes, indicating increasing contributions from higher energy eigenstates. Based on this, we can expect that the Ground State population will reduce over time as more and more eigenstates contribute and their contributions gain more and more weight. Figure 4.2, below, shows the decrease in the Ground State population over the same time interval:
+
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSpopDC.png}
+          \centering
+          \caption{Effect of DC potential on Ground State Population}
+\end{figure}
 
 \section{Simulated `Laser Pulse' Potential}
-\subsection{Potential Description}
-lksdlkjasd kalsjdnf alksjd fakjn a lkjnasd lka a la lkjasd la lksad lak a
-as akjs ka lka alk lllasd l
-\subsection{Effect On State Evolution}
-asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
-assdf as kjdnfasd
+In this section we investigate how our system would behave under the influence of a laser pulse.
 
-\section{TODO: model electron transitions \& photon emmision?}
-asdjfb kjad kjnas kjna skljn
-as k as 
-as ldlkn
+\subsection{Potential Description}
+In this case, we simulate the external potential term as a gaussian packet w.r.t. time such that the centre of the packet (most intense part) occurs at 1 atomic unit of time, and the standard deviation of the packet is 0.25 atomic units of time. The intensity of the laser pulse is controlled by a multiplicative factor, $\alpha$, giving the following expression for the external potential: 
+$$
+V_{\text{ext}} = \alpha \frac{4}{\sqrt{2\pi}}e^{-8\left(t-1\right)^{2}}\mathbf{r}
+$$
+
+As with the previous example, this extra potential term was added to the softcore potential, and the result used along the central diagonal of the Hamiltonian.
+
+\subsection{Effect On State Evolution}
+
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GS1LPwavefunction3times.png}
+          \centering
+          \caption{Effect of Single Laser Pulse on wavefunction}
+\end{figure}
+
+Figure 4.3, above, we see that almost all of a relatively small amount of energy is absorbed some time between the start and mid-point of the simulation (an interval of 3 atomic units of time), seen through the small additional turning point indicating a small contribution from the first excited state. There is very little change in shape between the mid-point and end of the simulation, indicating that there was very little incoming / outgoing energy in this time period.
+
+The change to Ground State population was investigated over the same time interval, and the results shown in Figure 4.4, below:
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSpopsinglelaser.png}
+          \centering
+          \caption{Effect of Single Laser Pulse on GS population}
+\end{figure}
+
+This graph shows that between around 0.5 and 1.5 atomic units of time into the simulation, the wavefunction is rapidly excited; losing 5\% of the population by 1.5 atomic units of time. Adter this initial loss, the population stays steadily at around 95\% for the rest of the simulation, indicating no further change to its energy.
+
+\section{Multiple Laser Pulses}
+
+We investigate the effects on our system of subjecting it to repeated laser pulses. 
+
+\subsection{Potential Description}
+The external potential used in this simulation is similar to the one used in the previous simulation, but with three added to the softcore potential to form the total potential term rather than one. Additionally, two of the simulated pulses have the centres of their gaussian packets shifted to occur at 3 and 5 atomic units of time.
+
+\subsection{Effect On State Evolution}
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GS3LPwavefunction3times.png}
+          \centering
+          \caption{Effect of Single Laser Pulse on wavefunction}
+\end{figure}
+
+
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSpop3pulses.png}
+          \centering
+          \caption{Effect of Single Laser Pulse on GS population}
+\end{figure}
+
+\section{Absorbing and Emitting a Photon}
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSabsorbemit.png}
+          \centering
+          \caption{Evolution of System on Absorbing and Emitting a Photon}
+\end{figure}
+
+
+\begin{figure}[H]
+          \includegraphics[width=\textwidth]{./GSpopabsorbemitphoton.png}
+          \centering
+          \caption{Effect of Absorbing and Emitting a Photon on GS Population}
+\end{figure}
 
 %----------------------------------------------------------------------------------------
