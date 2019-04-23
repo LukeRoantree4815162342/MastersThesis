@@ -75,13 +75,14 @@ We investigate the effects on our system of subjecting it to repeated laser puls
 The external potential used in this simulation is similar to the one used in the previous simulation, but with three added to the softcore potential to form the total potential term rather than one. Additionally, two of the simulated pulses have the centres of their gaussian packets shifted to occur at 3 and 5 atomic units of time.
 
 \subsection{Effect On State Evolution}
+The graphs in the figure below describe the evolution of the system as it absorbs energy from repeated laser pulses. This differs from the previous investigation of a single laser pulse in that the end result is a system with noticeably higher contributions from excited states than previously, indicating that the system has absorbed more energy. Additionally, the wavefunction of the system at the end shows higher exctited state contributions than in the middle of the simulation - indicating that energy is absorbed both before and after the middle point of the simulation, matching expectations as the laser pulses were staggered to be centred around $\frac{1}{6}, \frac{3}{6}, \text{ and }\frac{5}{6}$ of the simulation.
 \begin{figure}[H]
           \includegraphics[width=\textwidth]{./GS3LPwavefunction3times.png}
           \centering
           \caption{Effect of Single Laser Pulse on wavefunction}
 \end{figure}
 
-
+The Ground State population was also investigated, with the results shown in Figure 4.6 below, and we can see that there are three distinct drops in population - centred around 1, 3, and 5 atomic units of time; matching when we placed the maxima of the laser pulses. Additionally, we can see that the repeated laser pulses led to a higher overall drop in Ground State population by the end of the simulation, matching the analysis of the evolution of the wavefunction where we noticed higher contributions from excited states than with the single laser pulse.
 \begin{figure}[H]
           \includegraphics[width=\textwidth]{./GSpop3pulses.png}
           \centering
@@ -89,12 +90,21 @@ The external potential used in this simulation is similar to the one used in the
 \end{figure}
 
 \section{Absorbing and Emitting a Photon}
+We now look at modelling the situation where our quantum system absorbs some amount of energy (for example from an incoming photon), exciting it to a higher excited state, then releasing an equal amount of energy - i.e. emitting a photon of the same energy and returning to the Ground State.
+
+\subsection{Potential Description}
+For this simulation we model the incoming photon in the same way we previously modelled an incoming laser pulse, and then model the emission of the photon in the same way but with an opposite sign. We stagger the point in time that defines the centre of the emission pulse to ensure that the energy from the photon is fully absorbed before being emitted. 
+
+\subsection{Effect On State Evolution}
+We can expect the state at the end to match the result of field-free evolution of the initial, ground, state as the energy of the system should have no overall change. Figure 4.7 seems to match this expectation, with the final state showing only one turning point and having a similar shape to the initial state. Additionally, the mid-simulation wavefunction qualitatively seems to have contributions from higher excited states; shown through having an increased number of turning points. This matches our physical expectations, of an initially minimum-energy system being excited and then releasing energy to return to its minimum-energy state.
+
 \begin{figure}[H]
           \includegraphics[width=\textwidth]{./GSabsorbemit.png}
           \centering
           \caption{Evolution of System on Absorbing and Emitting a Photon}
 \end{figure}
 
+Looking at the change in Ground State population for this simulation, we see that it matches our physical interpretation; the population falls rapidly when absorbing the photon, then is regained when the energy is emitted. 
 
 \begin{figure}[H]
           \includegraphics[width=\textwidth]{./GSpopabsorbemitphoton.png}
