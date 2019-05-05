@@ -5,75 +5,61 @@
 \label{Chapter5} % For referencing the chapter elsewhere, use \ref{Chapter1} 
 
 %----------------------------------------------------------------------------------------
-
 \section{R-Matrix Theory}
-\subsection{TODO 1}
-df h jd nd re kfd nljd da nk kjnds 
-Is this an appropriate place for the above?
+\subsection{Origins \& Usage}
+(* cite "https://arxiv.org/pdf/1001.0678.pdf" P. Descouvemont, D. Baye *)
+R-Matrix theory is a method, or branch of methods, to obtain scattering properties from the Schrodinger equation of a range of physical systems (* cite "https://arxiv.org/pdf/1001.0678.pdf" P. Descouvemont, D. Baye *). 
 
-\subsection{TODO 2}
+It was first proposed in 1946 by Wigner(* cite Wigner E P 1946, Phys. Rev.7015 *) as a tool for modelling in quantum physics, initially intended to be used to describe resonances in nuclear reactions. In modern usage, R-Matrix theory is mostly used to describe scattering states resulting from interactions of particles or systems of particles. 
 
-The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
+Adaptions to, and improvements on, the original R-Matrix method have been developed to extend the use cases for it; one example of this is `Time-dependent R-matrix' theory, where an R-Matrix basis set describing the wavefunction of the system is evolved through time. 
 
-\section{Overview Of Project}
-\subsection{TODO 3}
-lksdlkjasd kalsjdnf alksjd fakjn a lkjnasd lka a la lkjasd la lksad lak a
-as akjs ka lka alk lllasd l
-\subsection{TODO 4}
-asdkjfnaslkdjfal lkajsnd a;kjndfajsnasdk aoa 
-assdf as kjdnfasd
+\subsection{Description of R-Matrix Method}
+The central idea of the R-Matrix method is to consider the system being modelled as consisting of two regions of space; a large `outer' region, where only long-range interactions are considered and spherical symmetery can be assumed, surrounding a smaller `inner' region, where additional short-range interactions are considered and any antisymmetrizational effects must be accounted for. 
 
-\section{Optimisation Of **TODO**}
+The boundary between these two regions is described by the `channel radius', chosen such that the stated assumptions for the two regions hold true, and allows calculation of the `R-Matrix' - the inverse of the logarithmic derivative of the inner-region wavefunction at the boundary. Comparing this with the external-region solution allows calculation of the scattering matrix, and allows bound states to be obtained.
+
+\section{Overview Of RMT}
+\subsection{What Is RMT?}
+RMT is a toolset of codes based on [R]-[M]atrix theory with [T]ime-dependence and is used for investigating atomic, molecular, and optical physics. 
+
+It was first proposed(* cite L. R. Moore. The RMT method for many-electron atomic systems in intense short-pulse laser light *) in 2011 as an ab-initio method for solving the TDSE for multi-electron systems exposed to intense short-pulse laser light, and was developed in the CTAMOP department of Queen's University Belfast; where further development continues to take place, allowing for the investigation of other phyical phenomena such as high-harmonic generation, polarisation effects, and even some relativistic effects. 
+
+In addition to development on the RMT toolset to allow invesigation of new physics, development aimed towards improving the computational efficiency is often undertaken as the cost of running simulations can be prohibitive for some investigations and reduce the scope in which RMT can be a useful toolset.
+
+\section{Wavefunction Propagation In RMT}
+\subsection{Overview of Arnoldi Propagator}
+At its current version, RMT uses Arnoldi-based propagators in both the inner and outer regions - calling the subroutines `arnoldi\_propagate\_inner' \& `arnoldi\_propagate\_outer' respectively to perform each step of this propagation. These propagators work as we have described in Chapter 3, and the Krylov basis size to be used can be specified in the parameter setup file. While RMT parallelises the evolution of the wavefunction across many processing units, the parallelisation steps are abstracted outside these subroutines such that within each subroutine call the process is completely serial - a fact I later exploit in order to simplify the work needed to implement finite difference propagation in RMT without needing to reimplement a parallelisation scheme.
+
+\subsection{Information Sharing Between Regions}
+During propagation, the FD points of the wavefunciton near the boundary in the inner region are projected onto the basis set for the outer region wavefunction, and then communicated to the outer region, in order to account for boundary reflections. A similar communication interface exists to communicate information about the outer region to the inner region during propagation. This communication represents a sizeable chunk of the computational effort needed to perform the propagation, which is mitigated in RMT by not sharing this information between the regions at every timestep; instead only every few timesteps.
+
+\subsection{Information Sharing At Spatial Chunk Boundaries}
+In addition to information sharing between the regions, the parallelisation scheme used to propagate the wavefunctions splits the propagation of chunks of the spatial intervals across several processing units uses a different method to account for boundary reflections than used in the parallelisation scheme outlined in Chapter 3, and requires information sharing between processing nodes. 
+
+In the scheme I implemented in my `toy code' implementations additional, redundant, points are used in each spatial chunk to contain the errors introduced by reflections at boundaries to outside the actual spatial split; allowing the redundant points to simply be discarded after propagation, and with them almost all of the errors. A different implementation is used in RMT; similarly to the information sharing between the inner region and outer region at the boundary, information about the edges of each spatial chunk is shared between neighbouring chunks during propagation; this allows for a more accurate end result than the method I used, and reduces redundant computational cost in the propagation of each chunk at the cost of a higher computational cost in communication. As the number of redundant points needed to contain the reflection errors increases as propagation continues, this scheme makes sense for the majority of the use cases of RMT - as longer propagation, and smaller timesteps, are usually required.
+
+\subsection{Insights}
+As noted, the parallelisation implementation of the propagation in RMT is abstracted outside the scope of the two arnoldi-propagation subroutines; meaning that a different propagation method can be implemented while keeping the original parallelisation scheme; reducing the amount of development needed to implement an alternative method. 
+
+\section{Finite Difference RMT Implementation}
 \subsection{Overview Of Potential Inefficiency}
-sdf gd jd kns doijsa o;noire jknf jndf 
+As mentioned in Chapter 4 in the comparison between the two propators I built for my `toy code', Arnoldi-based propagation requires multiple large matrix-vector multiplications while FD propagation only requires a single matrix-vector multiplication - and these multiplications represent the bulk of the work needed for each propagation. Having shown in my simplified implementations that FD propagation allows cheap increases to propagation order, and that in general FD propagator efficiency outperforms Arnoldi propagator efficiency, it seemed worth investigating a FD-propagation implementation of RMT - where the main considerations would be in ensuring stability of the wavefunction, and efficiency compared to the existing Arnoldi-propagation.
 
 \subsection{Method Of Attempted Improvement}
-dsf lkdf lkndf lksn lkna lk
-dsf gskfdn sdf 
-dsf kn
+During the course of this project, I worked towards a FD RMT implementation; I did not manage to complete this goal to a fully working state within the timeframe, but I did manage to implement a FD based alternative to the `arnoldi\_propagate\_inner' subroutine and test it produced correct results for short timescales (such that the wavefunction was contained within the inner region). 
 
-\subsection{Analysis Of Effectiveness \& Usefulness Of Changes}
+Additionally I made progress toward a FD alternative to `arnoldi\_propagate\_outer' but, as of publication of this thesis, this work is incomplete.
+
+To implement the FD propagation in the inner region, the first challenge faced was to build up the initial set of `previous wavefunctions' to be used in the propagation - this was not needed in the Arnoldi-propagation subroutine. To do this, instead of using the analytic solutions to the field-free case to propagate the first few timesteps and assume no field is `activated' until a few timesteps into the simulation, I instead used the analytic solutions to propagate the initial wavefunction backwards in time - i.e. to find it at timesteps corresponding to before the start of the simulation. This removed the need to ensure there are no features in the field near the start of the simulation, or to change any variables or parameters controlling what `time' each part of the program believes it to be at any given instant in the simulation.
+
+The next challenge was to represent the Hamiltonian as a matrix with all effects and phenomena considered, then efficiently evaluate its matrix product with the current wavefunction. Luckily, this step is also needed in Arnoldi propagation; and so I was able to simply use an existing parallelised subroutine to efficiently do this step - `parallel\_matrix\_vector\_multiply\_zm' 
+
+With these two challenges taken care of, the remainder of the propagation method closely resembled the method used in my toy code - simply subtracting previous wavefunctions multiplied by finite difference coefficients. Given this, I was able to copy my previous work (albeit needing to convert it to a different programming language), and then ensure that the correct global variables corresponding to the chunks of wavefunction are correctly updated and shared between timesteps.
+
+\subsection{Analysis Of Effectiveness \& Usefulness Of Completed Work}
 dsfg kjd klds lk
 sd klndf lk s
 sd dfg sdfgdsfgsd
-
-\subsection{Insights}
-
-\section{Optimisation Of **TODO**}
-\subsection{Overview Of Potential Inefficiency}
-sdf gd jd kns doijsa o;noire jknf jndf 
-
-\subsection{Method Of Attempted Improvement}
-dsf lkdf lkndf lksn lkna lk
-dsf gskfdn sdf 
-dsf kn
-
-\subsection{Analysis Of Effectiveness \& Usefulness Of Changes}
-dsfg kjd klds lk
-sd klndf lk s
-sd dfg sdfgdsfgsd
-
-\subsection{Insights}
-
-\section{Mid-Region Investigation To Improve Parallelisation}
-\subsection{Communication Costs For Parallelisation In Current Inner/Outer Region Model}
-sd fkjs aksn ;ksdn ;aksd sakld dsa 
-sd d df 
-df fds 
-\subsection{Conjecture For How Addition Of Mid-Region Could Improve Speeds}
-sd gfjknds lkjsdf nlkjdf nskjdf nsdkfj 
-
-\subsection{Description Of Method Used In Attempt}
-df gkl slkd flkdnf dsf
-df kjdnf 
-
-\subsection{Analysis Of Speed Improvements In Different Use Cases}
-dsf jdflkm ldskfmlkfd sdflkn
-
-\subsection{Review \& Insights Of Addition Of Mid-Region}
-sd kjns dlkjnds 
-skdj ns 
-sdak nsd 
-
 
 
