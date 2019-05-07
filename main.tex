@@ -205,9 +205,9 @@ headsepline, % Uncomment to get a line under the header
 
 \vspace*{0.2\textheight}
 
-\noindent\enquote{\itshape Thanks to my solid academic training, today I can write hundreds of words on virtually any topic without possessing a shred of information, which is how I got a good job in journalism.}\bigbreak
+\noindent\enquote{\Large \itshape It doesn't stop being magic just because you found out how it was done.}\bigbreak
 
-\hfill Dave Barry
+\hfill Terry Pratchett
 
 %----------------------------------------------------------------------------------------
 %	ABSTRACT PAGE
@@ -224,7 +224,11 @@ The Thesis Abstract is written here (and usually kept to just this page). The pa
 
 \begin{acknowledgements}
 \addchaptertocentry{\acknowledgementname} % Add the acknowledgements to the table of contents
-The acknowledgments and the people to thank go here, don't forget to include your project advisor\ldots
+This Masters project was undertaken in the Center for Theoretical Atomic, Molecular, and Optical Physics research department of Queen's University Belfast, under supervision of Drs. Andrew Brown and Jack Wragg.\newline
+
+I would like to thank each of Drs. Brown and Wragg for contributing enormously to my understanding of, insights to, and enthusiasm for the areas of mathematics, physics, and computation associated with this project; consistently both providing plentiful support in the development of the project and including me in the development of their own research for my own benefit.\newline
+
+Additionally, I would like to thank the other Mathematics Masters students in Queens for their support and solidarity throughout a stressful and fantastic year.
 \end{acknowledgements}
 
 %----------------------------------------------------------------------------------------
@@ -293,6 +297,18 @@ The acknowledgments and the people to thank go here, don't forget to include you
 
 % Include the chapters of the thesis as separate files from the Chapters folder
 % Uncomment the lines as you write the chapters
+\section*{Goals \& Motivations}
+\subsection*{Motivations}
+The study of the evolution of quantum systems covers a wide field of current research, and has produced both fantastic insights to the world around us as well as enabling the development of exciting new technologies.
+
+In particular, the investigation of ultrafast Laser-atom interactions has led to outstanding results even outside quantum or optical physics. An example of this includes that RMT, a code developed to model ultrafast interactions with multielectron systems, is due to be used as a benchmark for performance testing on ARCHER - a large supercomputer in Edinburgh. Another example is a recent development in Heriot-Watt, where ultrafast Lasers were used to succesfully weld metal directly to glass (*cite https://epsrc.ukri.org/newsevents/news/hwultrafastlaser/ *)
+
+While quantum theory as a concept has existed for some time, only certain types of quantum system can have their evolution solved analytically; others require numerical approximations to be made. Until relatively recently, the available computational resources needed for the majority of these models to any degree of accuracy were not available, but now with modern technologies and by exploiting massively parallelised computer systems, we can calculate extremely accurate approximations for the evolution of these systems; allowing new quantum phenomena to be explored.
+
+\subsection*{Goals}
+In this project I hope to investigate and improve methods of modelling quantum systems and their evolution, in order to broaden the range of quantum phenomena that can be simulated by decreasing the computational resources needed to create and evolve the necessary models to simulate these phenomena. 
+
+Additionally I hope to investigate applications of linear algebra quirks to improve computational models, develop an understanding for parallelised computation, and to meaningfully contribute to a current research project.
 
 \include{Chapters/Chapter1/Chapter1}
 \include{Chapters/Chapter2/Chapter2} 
