@@ -24,11 +24,11 @@
 In this thesis, the interactions of laser pulses with quantum systems are investigated. The systems investigated are limited to Hydrogenic atoms; that is spherically-symmetric systems with a central attractive potential field; the Coulomb potential. Such systems allow several simplifications to calculations based on symmetry, while still remaining useful models of many real molecules, atoms, or sub-atomic particles. Before describing the mathematical models used in the investigation, some relevant quantum theory, numerical analysis, and computational methods are revisited.
 
 \subsection{Schrodinger Equation In Multiple Forms}
-The `Schrodinger Equation' describes the wavefunction of a quantum system, and how that wavefunction changes dynamically with time *TODO - add source for this*. In it's most general, time-dependent, form the Schrodinger equation is written;
+The `Schrodinger Equation' describes the wavefunction of a quantum system, and how that wavefunction changes dynamically with time (* cite - C. Cohen-Tannoudji et. al. "Quantum Mechanics", Wiley-VCH, 2005 *). In it's most general, time-dependent, form the Schrodinger equation is written;
 $$
-i\hbar \frac{d}{dt}\ket{\Psi\left(t\right)} = \hat{H}\ket{\Psi\left(t\right)} 
+i\hbar \frac{d}{dt}\ket{\Psi\left(t\right)} = \hat{H}\ket{\Psi\left(t\right)},
 $$
-(where $\hbar$ is Planck's constant, $\Psi$ is the wavefunction of the system, and $\hat{H}$ is the Hamiltonian of the system)\newline
+where $\hbar$ is Planck's constant, $\Psi$ is the wavefunction of the system, and $\hat{H}$ is a Hermitian operator describing the energy of the system - known as the Hamiltonian of the system, and in general is time-dependent.\newline
 *Should I go into more detail on the Hamiltonian?*
 \newline
 To get a `snapshot' of the wavefunction at a given instant, the time-independent Schrodinger equation (TISE) can be considered;
@@ -38,7 +38,7 @@ $$
 (where $\Psi$ is the wavefunction of the system at the particular `t' of the snapshot, and $E$ is the energy of the system)\newline
 This equation can be solved as an eigenvalue problem, where the wavefunction of the system can be described in terms of eigenfunctions of the Hamiltonian - each with associated energy corresponding to the eigenfunctions' eigenvalues.\newline
 
-For a system with a single non-relativistic particle, under the influence of an external potential $V$, the TISE can be written in differential form;
+For a system with a single non-relativistic particle, under the influence of a potential $V$ (as a combination of a centrifugal potential and an external potential), the TISE can be written in differential form;
 $$
 \left[\frac{-\hbar^{2}}{2m}\nabla^{2} + V\left(\mathbf{r}\right)\right] \Psi\left(\mathbf{r}\right) = E\Psi\left(\mathbf{r}\right)
 $$
@@ -53,39 +53,80 @@ $$
 %Taylor expansion: 
 
 
-\subsection{Multi-Electron Systems}
-No idea what I was planning to do here.
-\newline
-Statement that Schrodinger Eqn still valid, and description of new Hamiltonian? Possibly also statement about if it is/isn't analytically solvable?
+%\subsection{Multi-Electron Systems}
+%No idea what I was planning to do here.
+%\newline
+%Statement that Schrodinger Eqn still valid, and description of new Hamiltonian? Possibly also statement about if it is/isn't analytically solvable?
 %\begin{itemize}
 %\item[-]Sparse: \\ Krylov Subspace based Arnoldi methods are known to be extremely efficient at finding eigenvectors of sparse matrices
 %\item[-]Hermitian: \\ asdfabsdflkajsnkja nds kljand akjs aksj lkajs nalkjs nalkjn  lka nalk  alk na ksjna knja kjna ;kjna;j na jn;jndav k;aj n
 %\end{itemize}
 
 \section{Overview Of Finite Difference Methods}
-
 \subsection{Relation to Taylor Series}
-a lkjnasd lka a la lkjasd la lksad lak a
+A function, $f(x)$, can be described at a point $x_{0}+h$  by its Taylor expansion;
+$$
+f\left(x_{0}+h\right)=f\left(x_{0}\right)+\frac{f^{\prime}\left(x_{0}\right)}{1 !} h+\frac{f^{(2)}\left(x_{0}\right)}{2 !} h^{2}+\cdots+\frac{f^{(n)}\left(x_{0}\right)}{n !} h^{n}+R_{n}(x),
+$$
+where $h$ is a small distance from $x_{0}$, and $R_{n}(x)$ is the `remainder' term - equal to the difference between the exact solution and the Taylor approximation to $n$ terms.
+
+Any continuous, infinitely differentiable, function can be exactly expressed by its infinite-term Taylor expansion; and can be approximated to any required level of accuracy by choosing a small enough $h$, enough terms, or a suitable combination of the two.
+
+Considering the case of truncating the Taylor approximation to $f$ to just two terms, and solving for $f^{\prime}\left(x_{0}\right)$, we obtain the `1 point forward finite difference' approximation to $f^{\prime}(x_{0})$;
+$$
+f^{\prime}(x_{0})=\frac{f(x_{0}+h)-f(x_{0})}{h}-\frac{R_{1}(x)}{h}
+$$
+
+Through similar derivations, the `2 point forward finite difference' method can be obtained, as well as the $n$-point method. Note that so far we have only looked at using points previous to our point in question to calculate the approximation - this does not need to be the case, and will be elaborated upon in Chapter 2 in the context of our project.
+
+\subsection{Relation to Definition of a Derivative}
+The definition of the derivative with respect to $x$ of a function, $f\left(x\right)$, is given by;
+$$
+f^{\prime}(x)=\lim _{h \rightarrow 0} \frac{f(x+h)-f(x)}{h}.
+$$
+
+To find an approximation for the derivative of this function at a point, $a$, we can simply choose a suitably small $h$ and plug in $x=a$;
+$$
+f^{\prime}(a) \simeq \frac{f(a+h)-f(a)}{h}.
+$$
+This result is identical to the `1 point forward finite difference' approximation to the first derivative of a function, and highlights the relationship between derivatives and their FD approximations.
 
 \subsection{Comparison To Basis Expansion Methods}
-Splines:
+The Taylor series expansion of a function is a decomposition of that function over a basis set of functions; the polynomials. This approach does not need to be restricted to this particular basis set, any spanning set of functions could be used in its place (with different coefficients needed). A common alternative is a Fourier series representation; this is more suitable in some cases, particularly ones where the function being modelled is periodic - due to the periodic nature of its basis set of sine and cosine waves.
+
 
 Fourier Expansions:
+The Fourier expansion of a periodic function, $g(x)$, is given by;
+$$
+g(x) \simeq \sum_{n=-N}^{N} c_{n} \cdot e^{i \frac{2 \pi n x}{P}},
+$$
+where $P$ is the period of the function, $N$ is the order of the approximation, and $c_{n}$ are appropriate coefficents.
 
+The Fourier expansion can alternatively be explained as an extension of the Taylor expansion in the case of a complex function.
 
-\subsection{Stability Considerations}
-Von Neumann relation
-Defn. (Stability): A F.D. scheme is `stable' if the errors at a given timestep do not cause subsequent errors to be magnified.
-Graphs displaying unstable and stable solutions?
+The main differences between FD methods for obtaining derivatives to functions and Fourier-based methods include the requirement for periodicity of the function in the case of the Fourier-based methods.
 
-\subsection{Backwards \& Central Finite Difference Methods \& Stiff Equations}
-look into that report I wrote last year
+Other Polynomial Expansions:
+As stated above, there is nothing unique about the decomposition of a funciton over the polynomials in the Taylor expansion; any spanning set of functions is suitable. Even when using polynomials, there are multiple different spanning sets to choose from - one being the standard polynomials, as we used in the Taylor expansion, but also others are commonly used - including the Legendre polynomials, Chebyshev polynomials, and Jacobi polynomials.
 
-\subsection{Calculation of Finite Difference Coefficients}
-Show without proof?
-include code/pseudo-code?
+\subsection{Definition of Stability of a FD Scheme}
+Defn. (Stability): A F.D. scheme is `stable' if the errors at a given timestep do not cause subsequent errors to be magnified. 
+
+In general, this may occur if the size of the timestep is too large with respect to the distance between spatial points. Exact formulae to determine whether or not a scheme will be stable can be calculated, with different results depending on the FD sceheme implemented. In the case of a `Crank-Nicholson' / `forward-time, central-space' scheme applied to the 1-D heat equation, the ctrieria for stability is given by;
+$$
+\frac{\alpha \Delta t}{(\Delta x)^{2}} \leq \frac{1}{2},
+$$
+where $\Delta t$ is the timestep size, $\Delta x$ is the distance between spatial points, and $\alpha$ is a constant. This shows that, in order to maintain stability, if you want to obtain an approximation with twice the precision (in terms of spatial grid points) you will need to use a timestep four times smaller - showing that accounting for instability in FD schemes can have large associated computational costs.
 
 \section{Parallel Computation Overview}
+Parallel computing differs from traditional, serial, computing in that instead of having one processing unit performing calculations until the computation is complete, several processing units perform calculations simulataneously until the computation is complete. 
+
+An analogy to this in a computer-free context would be comparing one student solving eight homework questions to eight students each solving one of the questions. 
+
+However, computational problems cannot usually be perfectly split up and divided among different processing units - sometimes some work needs to be performed in a serial manner in order to initialise the problem, or recombine solutions at the end of the computation, and sometimes different processing units need to share information between them which adds additional cost. 
+
+In terms of the previous analogy; these are similar to the additional work required due to one student needing to initially tell the others which questions they should work on, one student needing to re-write all the solutions neatly at the end, and the possibility of one question relying on the result from a previous question - and so stalling that student until the other is finished, and requiring them to question the other student.
+
 \subsection{Types Of Parallelism}
 There are three main types of parallelism \cite{IntroToParComp};
 \begin{itemize}
@@ -96,24 +137,21 @@ There are three main types of parallelism \cite{IntroToParComp};
 
 Additionally, there are three main approaches to implementing parallelism, each roughly corresponding to one of the above `types' of parallelism \cite{IntroToParComp};
 \begin{itemize}
-	\item[-]{\textbf{Multi-Threading}: TODO}
-	\item[-]{\textbf{Message Passing}: TODO}
-	\item[-]{\textbf{Stream Based}: TODO}
+	\item[-]{\textbf{Multi-Threading}: This parallelism model consists of one `master' thread, or processing unit, where the process is initialised and then the work isplit into subtasks and distributed to several `worker' threads to be completed. While the worker each act independently, all threads have access to shared global memory. Changing the state of this global memory allows for information to be shared between threads, but at the risk of errors caused by several thread attempting to update the same address at the same time.}
+	\item[-]{\textbf{Message Passing}: In this model, subtasks are divided among several processing units - each with its own additional local memory. The need for a shared, global, memory is removed in this model by allowing the processing units to directly send messages between them rather than updating the global memory. This comes at the cost of requiring each processing unit to be continuously `listening' for incoming messages, rather than simply checking the global memory when needed.}
+	\item[-]{\textbf{Stream Based}: This model differs strongly from the other approaches, and has a much less general application scope. Here, instead of splitting up computational tasks, only data is split up - the same instructions are passed to each processing unit, but with different data on which to perform the instructions.}
 \end{itemize}
 
 %\subsection{Shared \& Distributed Memory}
 %dfgaljsdf lkjdhf adslkjn asdja alksjnda lknas lakn KJN Kdsf lk
 
 \subsection{OpenMP \& MPI}
-OpenMP is a leading software utility used for implementing multi-threaded programs via an exposed API accessible for . As mentioned above, multi-threaded programs are usually based around a shared memory system,...
-TODO: dangers (race conditions)
-TODO: basic usage of OpenMP, advantages (easy parallelisation of for loops) / disadvantages
+OpenMP is a leading software utility used for implementing multi-threaded programs via an exposed API. OpenMP is designed to work on shared-memory systems, and controls the distribution of work to each thread and handles the risk of `race conditions' (where multiple threads are waiting on each other, and so none can continue) by ensuring task-parallelism in the subtasks assigned to each thread or by enforcing the use of work-sharing constructs.
 
-MPI (Message Passing Interface) is another software utility, used for communication across a distributed system...
-TODO: dangers of MPI (find out)
-TODO: basic usage, advantages / disadvantages, differences from OpenMP
-\subsection{Parallelisationability Of F.D. Methods}
-As described in chapter (?), spatial finite difference methods can approximate solutions to problems over a specified range, with given boundary conditions at the end points. The solution at each point can then be projected through time with a time propagator. If a finite difference time propagator is used, the initially specified range can be split up into several sub-ranges, each of which can be propagated independently - although they will lose accuracy at the end points of the sub-ranges over time. This can be rectified with message passing to update end point values based on neighbouring sub-range's end points periodically
+MPI (Message Passing Interface) is another software utility, intended for use in communication across a distributed system. It differs in that access to a shared memory is not assumed, and all communication is controlled from a single `master' known as the communicator.
+
+%\subsection{Parallelisationability Of F.D. Methods}
+%As described in chapter (?), spatial finite difference methods can approximate solutions to problems over a specified range, with given boundary conditions at the end points. The solution at each point can then be projected through time with a time propagator. If a finite difference time propagator is used, the initially specified range can be split up into several sub-ranges, each of which can be propagated independently - although they will lose accuracy at the end points of the sub-ranges over time. This can be rectified with message passing to update end point values based on neighbouring sub-range's end points periodically
 
 
 %----------------------------------------------------------------------------------------

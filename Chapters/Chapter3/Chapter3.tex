@@ -9,7 +9,7 @@
 
 \section{Time Evolution of a Quantum State}
 \subsection{Exact Solutions and Limitations}
-The evolution of a quantum state can be described fully by the Schr$\ddot{o}$dinger equation, in it's time-dependent form, which we will refer to from now as the TDSE. The TDSE states that an arbitrary quantum state, $\Psi$, will evolve according to;
+The evolution of a quantum state can be described fully by the Schr$\ddot{o}$dinger equation, in its time-dependent form, which we will refer to from now as the TDSE. The TDSE states that an arbitrary quantum state, $\Psi$, will evolve according to;
 $$ 
 i \hbar \frac{\partial}{\partial t} \Psi=H \Psi,
 $$
@@ -21,7 +21,7 @@ $$
 $$
 where a constant of integration has been neglected as it amounts to a global phase-shift.
 
-By spectrally decomposing $\Psi$ into it's component eigenstates, $\sum_{i}{c_{i}\mathbf{e_{i}}}$, we can rewrite this as;
+By spectrally decomposing $\Psi$ into its component eigenstates, $\sum_{i}{c_{i}\mathbf{e_{i}}}$, we can rewrite this as;
 $$
 \Psi\left(t\right) = \sum_{j}{e^{\frac{i}{\hbar}\lambda_{j}t}c_{j}\mathbf{e_{j}}\left(0\right)},
 $$
@@ -32,27 +32,27 @@ Solutions for this case can therefore be exactly calculated if the eigenstates a
 \subsection{The Case for Numerical Methods}
 The TDSE is not trivially solvable analytically other than for particular time-dependent Hamiltonians; and so to be able to investigate the time evolution of more complicated systems, or systems with more complicated external potentials, a different approach must be used. 
 
-One alternative approach is pertubation theory, where known solutions to Hamiltonians of simpler systems are used to approximate the more complicated systems along with small additional `perturbative' terms. This approach's accuracy is mostly limited by the size of the pertubation, and so is useful for modelling the evolution for systems similar to an analytically solvable one with a small additional term - but not in the general case for modelling arbitrary systems.
+One alternative approach is pertubation theory, where known solutions to Hamiltonians of simpler systems are used to approximate the more complicated systems along with small additional `perturbative' terms - for example investigating the effect of a small external field on the ground state of the system. This approach's accuracy is mostly limited by the size of the pertubation, and so is useful for modelling the evolution for systems similar to an analytically solvable one with a small additional term - but not in the general case for modelling arbitrary systems. For example, trying to model the effect of a large external field on the ground state would be innacurate with pertubation theory if the corresponding pertubation was larger than the difference between the ground and first excited states.
 
 Another approach is to use numerical methods; discretizing the Hamiltonian and wavefunction and using numerical solutions to the differential equation by approximating derivatives with series or basis expansions - as we did for the numerical solutions to the TISE. 
 
 Advantages of this approach include that computers are easily able to compute solutions to discretized models, and that these approaches are not limited to systems similar to analytically solvable ones - as they do not rely on the solutions to the differential equation being similar, instead solving the differential equation in a completely different way.
 
-In this chapter we investigate and compare two numerical methods of solving the TDSE; a Finite Difference propagator, and a Krylov Subspace propagator. These both work similarly, using one or more previous states of the wavefunction to predict the state at the next timestep, and updating the Hamiltonian at ever timestep.
+In this chapter we investigate and compare two numerical methods of solving the TDSE; a Finite Difference propagator, and a Krylov Subspace propagator. These both work similarly, using one or more previous states of the wavefunction to predict the state at the next timestep, and updating the Hamiltonian at every timestep.
 
 \section{Finite Difference Propagator}
-A finite difference approach to this problem is very similar to the one used in solving the TISE - with the main difference being that we are now propagating in time rather than space. Additionally, as we don't know anything about the wavefunction at points in time ahead of the current timestep, we can't use any backwards terms in our finite difference scheme. 
+A finite difference approach to this problem is very similar to the one used in solving the TISE - with the main difference being that we are now propagating to approximate the first derivative in time rather than the second in space. Additionally, as we don't know anything about the wavefunction at points in time ahead of the current timestep, we can't use any backwards terms in our finite difference scheme. 
 
-FD methods require knowledge of the wavefunction at several initial timesteps to be able to start to propagate; in the TISE solution we took the initial points to be all $0$, but that is an unsuitable assumption for this case. 
+FD methods require knowledge of the wavefunction at several initial timesteps to be able to start to propagate; in the TISE solution we took the boundary points to be all $0$, but that is an unsuitable assumption for this case as a zero-everywhere wavefunciton is unphysical and implies that, given a particle in the system, the particle has $0$ probability of existing in any region of the system - contradicting that we have a particle existing in our system. 
 
-Instead, we use analytic solutions to the field-free case to build up the first few timesteps. This is equivalent to assuming that no external potential is applied to the system for the first few timesteps, which is a much more realistic assumption.
+Instead, we spectrally decompose the wavefunction and use the previously described analytic solutions (noting that the evolution operator is only constant in the abscence of a time-varying field) to evolve each component eigenstate to build up the first few timesteps. This is equivalent to assuming that no external potential is applied to the system for the first few timesteps, which is a much more realistic assumption.
 
 \section{Krylov Subspace Propagator}
 The Krylov Subspace approach works differently, calculating the state of the wavefunction at the next timestep in terms of only the current one. 
 
 To do this, a krylov subspace is built from a matrix representation of the Hamiltonian at the next timestep and using the current wavefunction as the starting vector for the subspace. 
 
-The vectors in the subspace are then added, weighted by appropriate taylor series coefficients, to give the approximation for the wavefunction at the next timestep. This approximation increases in accuracy with increased subspace size, although almost all information is contained in the first few terms and there is a rapidly decreasing benefit to additional subspace elements - the rate of the descrease here is considerably greater than the decrease in benefit of using additional finite difference terms in the FD propagator case. However, the computational costs of using more terms are not the same in both propagators and so it is non-trivial to determine which method is more efficient in any given case - this will be discussed later in this chapter.
+The vectors in the subspace are then added, weighted by appropriate Taylor series coefficients, to give the approximation for the wavefunction at the next timestep. This approximation increases in accuracy with increased subspace size, although almost all information is contained in the first few terms and there is a rapidly decreasing benefit to additional subspace elements - the rate of the descrease here is considerably greater than the decrease in benefit of using additional finite difference terms in the FD propagator case. However, the computational costs of using more terms are not the same in both propagators and so it is non-trivial to determine which method is more efficient in any given case - this will be discussed later in this chapter.
 
 To summarise the process;
 First the Krylov subspace, $\mathbb{K}$, is built:
@@ -64,6 +64,8 @@ $$
 \Psi\left(t+\delta{t}\right) = \sum_{i}{\frac{-i\delta{t}^{i}}{i!}k_{i}}
 $$
 
+It should be noted that as the subspace size tends to infinity, the Krylov subspace propagation is identical to the full Taylor series expansion of the first derivative in time for the wavefunction; further, each term is identical to a term in the Taylor expansion and so limiting the basis to $n$ elements is equivalent to truncating the Taylor expansion at the $n$th term - and so leaving an error of O$\left(h^{\left(n+1\right)}\right)$.
+
 Advantages of this approach include accurate convergence with relatively few terms needed, and that there is no need for the first few terms to be analytic solutions to the field-free case.
 Disadvantages of it include that a large matrix-vector multiplication must be performed for every term in the approximation, as opposed to a single one regardless of the number of terms in the FD approach.
 %This 'baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
@@ -71,7 +73,7 @@ Disadvantages of it include that a large matrix-vector multiplication must be pe
 \section{Comparisons Between Time Propagators}
 
 \subsection{Efficiency Comparisons For 6000 Timesteps With A Small Grid}
-Using only the constant Soft-Core potential, and so with no time-dependent terms in the Hamiltonian, the two propagators were used to propagate the Ground State wavefunction 6000 timesteps - using a 1000 grid points to represent the wavefunction, a timestep of $10^{-3}$ atomic units of time, and both propagators using 6 terms. The results shown are averaged over 5 repeated calculations. 
+Using only the constant Soft-Core potential, and so with no time-dependent terms in the Hamiltonian, the two propagators were used to propagate the Ground State wavefunction 6000 timesteps - using a 1000 spatial grid points to represent the wavefunction, a timestep of $10^{-3}$ atomic units of time, and both propagators using 6 terms. The results shown are averaged over 5 repeated calculations. 
 
 For context if attempting to reprodce the results, the calculations were performed in a Python3.7 Jupyter Notebook, running on a 3.2GHz i7u processor with 8GB of RAM.
 
@@ -80,22 +82,14 @@ Mean runtime: \hspace{2cm} 32.28598s\newline
 Standard Deviation: 0.10144s / 0.31419\%
 
 \subsubsection{Finite Difference Propagator:}
-Mean runtime: 26.62208s\newline
-Standard Deviation: 1.18747s / 4.46047\%
-
-\textbf{Note:} It was noticed for this set of results that 4 runs were extremely close to 26s, with a single result being almost 29s. The cause of this anomaly was investigated and was determined to be that I switched to a different browser tab during that calculation; Facebook, which loads a number of videos and images when opened. The anomalous result was replaced with 3 new calculations to instead give the following results;\newline
 Mean runtime: \hspace{2cm} 26.02711s\newline
 Standard Deviation: 0.10275s / 0.39478\%
-
-Additionally, I attempted to recreate the anomalous result by averaging 5 calculations during which I switched to the Facebook tab, in order to support the hypothesis that the extra compuatational power required by facebook caused the anomalous result. The results of that attempt were as follows;\newline
-Mean runtime: \hspace{2cm} 33.73616s\newline
-Standard Deviation: 5.19175s / 15.38927\%
 
 \subsubsection{Analysis:}
 From these results, it is clear that for this setup the Finite Difference propagator performs more efficiently - taking only around 80\% of the time as the Krylov Subspace propagator. Additionally, both propagators had a very similar spread of times taken; showing that each is roughly as reliable as the other.
 
 \subsection{Efficiency Comparisons For 6000 Timesteps With A Large Grid}
-The previous experiment was repeated, changing only the number of grid points used to 100,000. Due to the length of time required for these calculations, they were not averaged to obtain a more accurate result and determine the spread of results; instead the spread after 500 timesteps was investigated, using 5 calculations for each propagator, afterwards to provide some insight to the expected spread of results for the full 6000 timesteps.
+The previous experiment was repeated, changing only the number of spatial grid points used to 100,000. Due to the length of time required for these calculations, they were not averaged to obtain a more accurate result and determine the spread of results; instead the spread after 500 timesteps was investigated, using 5 calculations for each propagator, afterwards to provide some insight to the expected spread of results for the full 6000 timesteps.
 
 \subsubsection{Krylov Subspace Propagator:}
 Mean runtime: \hspace{2cm} 2392.27s
@@ -213,9 +207,15 @@ To do this, both the wavefunction and the Hamiltonian were split into `chunks' -
 \subsubsection{Is Any Information Lost When The Propagation Is Split Up?}
 In short, yes, although the amount can be mitigated through a few different methods. The reason we lose information, or accuracy, is that by splitting up the spatial region we introduce new boundaries in the system at the edges of the chunks. These boundaries effectively force the wavefunction to drop to 0 at any distance past the edge of the chunk, although this itself is not important as at distances past the chunk's edge the next chunk is simply used instead. What is important is that during propagation, the wavefunction inside each chunk thinks the rest of the wavefunction is 0-valued - this causes `reflections' at the boundaries, which cause inaccuracies at the edges of the chunks and can start to cause inaccuracies further and further within the chunk over time. 
 
-The figure below shows an example of this; where the wavefunction was split into two equally sized chunks, propagated seperately for 1000 timesteps, then recombined. It can be seen that there are large differences from the expected result at the centre, but elsewhere a very accurate result is obtained.
+The figure below shows an example of this; where the wavefunction described by 5000 spatial points was split into two equally sized chunks, propagated seperately for 1000 timesteps, then recombined. It can be seen that there are large differences from the expected result at a couple of points at the centre, but elsewhere a very accurate result is obtained.
 
+\begin{figure}[H]
+         \includegraphics[width=\textwidth]{./SerialVParallel.png}
+         \centering
+         \caption{Comparison Between Evolved Wavefunction From Serial Propagation And Parallel Propagation}
+\end{figure}
 
+Note that these `reflection' errors are limited to only a couple of grid points at the chunk edges, even after a relatively long (1000 timesteps) propagation - we use this knowledge in further improvements to increase accuracy of the parallelised propagators.
 
 These `reflections' should actually occur even for the non-parallelised case, except that in this case the assumption that the wavefunction is 0-valued beyond the edges is actually a good assumption and closely approximates the physical system. From the description of the cause of these reflections, it can be seen that the impact of these reflections depend on how far from 0 the wavefunction should be at the boundaries - for example, in the above figure we have that the chunk boundaries are at the peak of the wavefunction, and so this is a worst-case scenario. We now consider methods of mitigating the errors introduced by these reflections.
 

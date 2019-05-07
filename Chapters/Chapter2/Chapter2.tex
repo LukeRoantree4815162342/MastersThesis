@@ -1,10 +1,10 @@
- Chapter 2
-
 \chapter{Time Independent Case - A Starting Point} % Main chapter title
 
 \label{Chapter2} % For referencing the chapter elsewhere, use \ref{Chapter2} 
 
 %----------------------------------------------------------------------------------------
+\section{Our Problem}
+In this project, we seek to model Hydrogenic systems and the evolution of their corresponding wavefunctions under different external fields. To do this, we must first solve the time-independent Schrodinger equation to obtain a basis of eigenstates to use to describe our wavefunctions. In this chapter, we investigate numerical approaches to finding these eigenstates and attempt to optimise their accuracy and runtime efficiencies.
 
 \section{Central Finite Difference Methods}
 *Assume overview of FD methods covered in Ch.1*
@@ -13,22 +13,32 @@ In Chapter 1, we introduced the `1 point forward finite difference' method; an a
 \begin{equation*}
     \delta f\left(x\right) \simeq \frac{f\left(x + h\right) - f\left(x\right)}{h}
 \end{equation*}
-we instead approximate it as 
+we approximate it as 
 \begin{equation*}
     \delta f\left(x\right) \simeq \frac{f\left(x\right) - f\left(x - h\right)}{h}
 \end{equation*}
 i.e., approximating each point from the succeeding point rather than preceding. 
-These are both accurate to a tolerance of $O(h)$, and provide reasonable approximations in cases where there are no sharp peaks or discontinuities in the function over intervals narrow with respect to $h$, as these features can either be missed or cause $\delta f(x)$ to be poorly approximated in these areas. One way to obtain a more accurate estimate of $\delta f(x)$, and limit the impact of potential peaks / discontinuities is to use a `central finite difference' method;
-\begin{equation*}
-    \delta f\left(x\right) \simeq \frac{f\left(x + h\right) - f\left(x - h\right)}{2h}.
-\end{equation*}
-It can be seen easily here that the same number of function calls to $f$ are required here, and so the computational expense is the same as previously, but we obtain an estimate accurate to $O(h^{2})$. Additionally, by using both forward and backward points, we limit the impact of sharp features in the function over the interval.
+
+Note that in both of these cases, taking the limit as $h\rightarrow 0$ gives the definition of a derivative; and so as $h\rightarrow 0$, the exact solution is obtained.
+
+These are both accurate to a tolerance of $O(h)$ due to the truncation of the Taylor series representations of the function, and provide reasonable approximations in cases where there are no sharp peaks or discontinuities in the function over intervals narrow with respect to $h$, as these features can either be missed or cause $\delta f(x)$ to be poorly approximated in these areas. One way to obtain a more accurate estimate of $\delta f(x)$, and limit the impact of potential peaks / discontinuities is to use a `central finite difference' method;
+\begin{align*}
+	\delta f\left(x\right) &= \frac{f\left(x + h\right) - f\left(x\right)}{h} + O(h),\\
+	\delta f\left(x\right) &= \frac{f\left(x\right) - f\left(x - h\right)}{h} + O(h)\\
+	\implies&\\
+	2\delta f\left(x\right) &= \frac{f\left(x\right) - f\left(x - h\right)}{h} + \frac{f\left(x + h\right) - f\left(x\right)}{h} + O\left(h^{2}\right)\\
+\end{align*}
+	As the first terms in the errors introduced from unused Taylor expansion terms will exactly cancel each other
+\begin{align*}
+	\implies \delta f\left(x\right) &= \frac{f\left(x + h\right) - f\left(x - h\right)}{2h} + O\left(h^{2}\right).
+\end{align*}
+It can be seen here that the same number of function calls to $f$ are required here, and so the computational expense is the same as previously, but we obtain an estimate accurate to $O(h^{2})$. Additionally, by using both forward and backward points, we limit the impact of sharp features in the function over the interval.
 
 \subsection{End Points}
-We have seen that a CFD method will give us a more accurate approximation to $\delta f(x)$, provided that we know the values of the function at points to either side of the point in question; this leads to the problem that at the end points of our interval, we won't know one of these points. There is no singular solution to this problem, as this CFD approach can be applied to a wide variety of problems. In our case, from physical intuition we know that at distances far away from the particle the wavefunction should be near-zero - using this we can choose to model $f(\alpha)$ for any $\alpha$ outside of our interval as $0$, allowing us to use the CFD even at the end points.
+We have seen that a CFD method will give us a more accurate approximation to $\delta f(x)$, provided that we know the values of the function at points to either side of the point in question; this leads to the problem that at the boundaries of our interval, we won't know the value of the function at one of these grid points. There is no one solution to this problem, as this CFD approach can be applied to a wide variety of problems. In our case, from physical intuition we know that at distances far away from the particle the wavefunction should be near-zero - using this we can choose to model $f(\alpha)$ for any $\alpha$ outside of our interval as $0$, allowing us to use the CFD even at the boundaries.
 
 \subsection{Getting Coefficients}
-In general, any number of points can be used for a finite difference method; with the expected accuracy of the approximation increasing with each additional point. In these cases, not all points contribute equally to the approximation. The set of ratios at which they contribute are called the `finite difference coefficients' of that finite difference scheme. These coefficients can be calculated by solving a system of linear equations (* CITE *);
+We have seen examples using two points to calculate the derivative but, in general, any number of points can be used for a finite difference method; with the expected accuracy of the approximation increasing with each additional point. In these cases, not all points contribute equally to the approximation. The set of ratios at which they contribute are called the `finite difference coefficients' of that finite difference scheme. These coefficients can be calculated by solving a system of linear equations (* CITE *);
 \begin{align*}
 \begin{pmatrix}
 1&1&...&1&1\\
@@ -70,9 +80,9 @@ can be approximated with a CFD method as
         a_{-1}&a_{0}+V\left(r_{1}\right)&...&...&...&...\\
         ...&...&...&...&...&...\\
         0&...&...&a_{-p}&...&a_{0}+V\left(r_{n}\right)
-    \end{pmatrix}\mathbf{\Psi_{i}\left(r\right)}\ =\ E_{i}\mathbf{\Psi_{i}\left(r\right)}.
+    \end{pmatrix}\mathbf{\Psi_{j}\left(r\right)}\ =\ E_{j}\mathbf{\Psi_{j}\left(r\right)}.
 \end{align*}
-where $\{E_{i}\}$ and $\{\mathbf{\Psi_{i}}\}$ are eigenvalues and eigenvectors of the matrix; forming a basis set for all possible solutions. Further, physical significance can be inferred from these values; each eigenvalue corresponds to the energy of a distinct state, and states corresponding to negative energies are `bound' states.
+where $\{E_{j}\}$ and $\{\mathbf{\Psi_{j}}\}$ are eigenvalues and eigenvectors of the matrix; forming a basis set for all possible solutions. If we know that we can exactly, or at least fairly accurately, represent our desired initial wavefunciton with only the first few of these eigenvectors, we don't need to calculate the rest and can stop early - in fact, if our initial wavefunction is itself an eigenstate, then we only need to calculate that single eigenstate. Further, physical significance can be inferred from these values; each eigenvalue corresponds to the energy of a distinct state, and states corresponding to negative energies are `bound' states.
 
 \subsection{Useful Properties of CFD method in matrix form}
 \begin{itemize}
@@ -83,13 +93,11 @@ where $\{E_{i}\}$ and $\{\mathbf{\Psi_{i}}\}$ are eigenvalues and eigenvectors o
 \section{Implementation}
 \subsection{General Approach}
 \begin{itemize}
-	\item[>]{\textbf{Overview - Python tools}\\ \noindent\rule{4.5cm}{0.25pt}}
-
-    \item[>]{Set up a set of equally spaced points spanning an interval containing the particle - numpy.linspace}
-    \item[>]{Calculate the potential at each of the points - custom defined function}
-    \item[>]{Build a `baseline' Hamiltonian of FD coefficients along the appropriate diagonals and $0$ elsewhere - numpy.zeros}
-    \item[>]{Add the potential values to the central diagonal - no extra tool needed}
-    \item[>]{Use an eigensolver algorithm / tool to find eigenpairs of the Hamiltonian - numpy.linalg.eig}
+    \item[>]{Set up a set of equally spaced points spanning an interval containing the particle}
+    \item[>]{Calculate the potential at each of the points}
+    \item[>]{Build a `baseline' Hamiltonian of FD coefficients along the appropriate diagonals and $0$ elsewhere}
+    \item[>]{Add the potential values to the central diagonal}
+    \item[>]{Use an eigensolver algorithm / tool to find eigenpairs of the Hamiltonian}
 \end{itemize}
 
 \subsection{Notes On Finding Eigenpairs}
@@ -115,7 +123,7 @@ From this it is clear that, for a high enough $k$, the term in the summation wit
 Additionally it can be seen that the error in this approximation can be estimated using the next-largest eigenvalue; $\epsilon \simeq |\frac{\lambda_1}{\lambda_2}|^{k}$ where $\lambda_1, \lambda_2$ are the two most dominant eigenvalues. This shows that the rate of convergence is given by $|\frac{\lambda_1}{\lambda_2}|$.
 
 
-Subspace Iteration is an extension to Power Iteration, where a set of $m$ random vectors are initialised instead of onle one, and these are repeatedly multiplied by $A$, then orthonormalised with respect to each other (as opposed to simply normalised like the Power Iteration method). The orthonormalisation process, usually done via repeated QR decomposition, ensures that the initial vectors will not all converge to the same, largest, eigenvector - instead one will converge to the next most dominant one, another to the third most, all the way to the $m^{\text{th}}$ most dominant.
+Subspace Iteration is an extension to Power Iteration, where a set of $m$ random vectors are initialised instead of only one, and these are repeatedly multiplied by $A$, then orthonormalised with respect to each other (as opposed to simply normalised like the Power Iteration method). The orthonormalisation process, usually done via repeated QR decomposition, ensures that the initial vectors will not all converge to the same, largest, eigenvector - instead one will converge to the next most dominant one, another to the third most, all the way to the $m^{\text{th}}$ most dominant.
 
 
 Krylov Subspace Iteration is a special case of Subspace Iteration where the initial subspace is not fully random vectors, and is instead built from a single random vector, $\mathbf{b}$, such that the subspace consists of vectors $\{\mathbf{b}, A\mathbf{b},...,A^{m}\mathbf{b}\}$. One reason to use a Krylov subspace over a randomised one is that vectors in the Krylov subspace will have large spectral components for dominant eigenvectors, as shown in the above proof of Power Iteration convergence. This results in in a reduced number of subspace iterations needed for convergence.
@@ -128,7 +136,7 @@ In this investigation, while I made use of these results through eigensolver cho
 
 \section{Results}
 \subsection{Expected Results for Particle In A Box, Soft-Core}
-In the case where there is no external potential field, i.e. $V=0$ in interval, and the wavefunction's amplitude is forced to be $0$ outside of the interval, i.e. $V=\infty$ outside interval, there is an easily obtained analytic solution for the wavefunction; 
+In the case where there is no external potential field, i.e. $V=0$ in interval, and the wavefunction's amplitude is forced to be $0$ outside of the interval, i.e. $V=\infty$ outside interval, there is an easily obtained analytic solution for the wavefunction known as the ``Particle in a box" solution(* cite Hyperphysics \texttt{http://hyperphysics.phy-astr.gsu.edu/hbase/quantum/pbox.html} *); 
 \begin{align*}
 	\Psi_{i}\left(r\right) = \sqrt{\frac{2}{L}}\text{sin}\left(\frac{i\pi \left(r + \frac{L}{2}\right)}{L}\right),\ i\in \mathbb{Z}^{+}
 \end{align*}
@@ -144,15 +152,7 @@ A visual representation (* CITE Hyperphysics *) of the first few of these states
 	\caption{Expected First Few Excited States for a Particle-In-A-Box System}
 \end{figure}
 
-\subsection{Three-Point CFD, FFD, BFD Results with no Potential (Particle In A Box)}
-\begin{figure}[H]
-	\includegraphics[width=0.75\textwidth]{./particleinaboxCFD.png}
-	\centering
-	\caption{First Few Excited States of Particle-In-A-Box System Calculated by CFD}
-\end{figure}
-
-These results qualitatively mimic the expected ones very closely, with the same numbers of nodes, symmetries, and constant wavelengths. This provides a good indication that this is a good method to use for other, more extravagent, models.
-
+\subsection{Three-Point FFD, BFD, CFD Results with no Potential (Particle In A Box)}
 \begin{figure}[H]
 	\includegraphics[width=0.75\textwidth]{./particleinaboxFFD.png}
 	\centering
@@ -165,7 +165,17 @@ These results qualitatively mimic the expected ones very closely, with the same 
 	\caption{First Few Excited States of Particle-In-A-Box System Calculated by BFD}
 \end{figure}
 
-For both the Forward and Backwards Finite Difference calculations, large stability issues are easily seen. As the same order of finite difference method, and so the same computational expense, was used in all three of these calculations, it is clear that the CFD method is the only one worth developing further. As stated earlier, the CFD method should be accurate to $O(h^{2})$, while the FFD and BFD methods are only accurate to $O(h)$ - this combined with decreased stability resilience resulted in the above calculations, which are not representative of the analytic solutions at all.
+For both the Forward and Backwards Finite Difference calculations, the results do not at all resemble the analytic solutions, and suggest large stability issues have arisen. This instability comes primarily from consistently over- or under-estimating the gradient over the course of the interval, due to the shape of the wave and the fact that no correcting terms from the other direction are ever used in either case. A central finite difference method will have these terms, and so should be able to avoid this instability;
+
+\begin{figure}[H]
+	\includegraphics[width=0.75\textwidth]{./particleinaboxCFD.png}
+	\centering
+	\caption{First Few Excited States of Particle-In-A-Box System Calculated by CFD}
+\end{figure}
+
+These results qualitatively mimic the expected ones very closely, with the same numbers of nodes, symmetries, and constant wavelengths. This provides a good indication that this is a good method to use for other, more extravagent, models.
+
+As the same order of finite difference method, and so the same computational expense, was used in all three of these calculations, it is clear that the CFD method is the only one worth developing further. As stated earlier, the CFD method should be accurate to $O(h^{2})$, while the FFD and BFD methods are only accurate to $O(h)$ - this combined with decreased stability resilience resulted in the above calculations, which are not representative of the analytic solutions at all.
 
 \section{Optimisations}
 
@@ -174,14 +184,14 @@ The first improvement to the chosen implementation (matrix method) involved movi
 
 The motivation for this is that to obtain a solution to a very high accuracy a large number of grid points are needed and, with ndarray storage, the memory needed to store the Hamiltonian scales with the square of the number of grid points - meaning that the maximum possible accuracy is limited by the size of the Hamiltonian that can be held in memory. 
 
-From <ref earlier>, we see that the Hamiltonian is tri-diagonal for our 3 point CFD approach. As a result we know everything about the Hamiltonian if we know its tri-diagonal elements, and so switching to a sparse diagonal storage data structure (scipy's sparse.diags) we can throw away the unneeded zeros and obtain a more efficient Hamiltonian representation that scales linearly with the number of grid points. 
+From <ref earlier>, we see that the Hamiltonian is tri-diagonal for our 3 point CFD approach. As a result we know everything about the Hamiltonian if we know its tri-diagonal elements, and so switching to a sparse diagonal storage data structure (scipy's sparse.diags) we can throw away the unneeded zeros and obtain a more efficient Hamiltonian representation whose size scales linearly with the number of grid points. 
 
 Switching to this data structure expanded the maximum size of Hamiltonian that could be held in memory on my laptop (8GB RAM) from one using 20 thousand grid points to one using over 10 million grid points.
 
 Limitations of this data structure include that more specialised functions are needed to operate on sparse matrices; for example numpy's linalg.eig eigensolver is unable to operate on sparse data. Luckily, scipy's sparse library has a range of equivalent tools designed to replicate the effects of many of numpy's operations for sparse data structure, including several eigensolvers which we now look at as an additional optimisation method.
 
 \subsection{Eigensolver Choice}
-As seen in the above section, a sparse storage system allows for more accurate calculations to be performed. There are two main sparse eigensolvers available to use in place of numpy's linalg.eig here; scipy's sparse.linalg.eigs and sparse.linalg.eigsh. These both work similarly, using Arnoldi-based methods for subspace iteration to obtain the eigenpairs, with the difference being that the former uses standard Arnoldi iteration, while the latter uses Lanczos iteration * CITE *. 
+As seen in the above section, a sparse storage system allows for more accurate calculations to be performed. There are two main sparse eigensolvers available to use in place of numpy's linalg.eig here; scipy's sparse.linalg.eigs and sparse.linalg.eigsh (which we will refer to from here as `eigs' and `eigsh' respectively). These both work similarly, using Arnoldi-based methods for subspace iteration to obtain the eigenpairs, with the difference being that the former uses standard Arnoldi iteration, while the latter uses Lanczos iteration * CITE *. 
 
 Lanczos iteration is a simplification of Arnoldi iteration for the case where the matrix in question is Hermitian; from * cite previous *, we know that a CFD-based Hamiltonian will be real and symmetric - and therefore Hermitian. 
 
@@ -206,7 +216,7 @@ Additional optimisations involving the `sigma' parameter are described below, wh
 \subsection{FastBOI Improvement}
 An additional efficiency improvement that I developed makes use of results from (* cite previous *), where it is seen that the rate of convergence of an eigenstate during subspace iteration is proportional to the magnitude of the corresponding eigenvalue and that eigenstates of of a matrix are also eigenstates of that matrix's inverse (if it exists), with corresponding eigenvalues equal to the reciprocal of the original eigenvalues. 
 
-Combining these it can be seen that if an estimate of an eigenstate's eigenvalue is known, say $\lambda$, then $\lambda I$ can be subtracted from the original matrix to create a new matrix with the same eigenstates, but with eigenvalues equal to the original ones minus $\lambda$. 
+Combining these it can be seen that if an estimate of an eigenstate's eigenvalue is known, say $\lambda$, then $\lambda$ times the identity matrix, $I$, can be subtracted from the original matrix to create a new matrix with the same eigenstates, but with eigenvalues equal to the original ones minus $\lambda$. 
 
 As a result, the eigenstate desired will have a `new' eigenvalue of $0$ (or very near, depending on accuracy of the estimate) - thus, if we invert the matrix, the result will have the same eigenvectors but reciprocal eigenvalues, which in the case of the desired eigenstate will be very large and tend towards $\infty$ with increasing accuracy. 
 
@@ -309,7 +319,7 @@ An alternative to the Boosted Optimiser Iteration method, suitable for other use
 
 For each model I then found the ground state eigenvalue, using a massively negative estimate in the Shift-Invert parameter, and then recorded the ground state value along with statistics to describe the potential used in that model; such as mean, median, skew, standard deviation, kurtosis. 
 
-Several machine learning models, including a 3-hidden-layer neural network and a boosted random forest, were trained on a randomly selected 85\% of the data. After feature selection and hyperparameter tuning, the models ranged from 97.3\% (simple linear regression) to 99.996\% (neural network) accurate on the unseen 15\% of the data (measured using Mean Average Error).
+Several machine learning models(* cite sklearn \texttt{https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.AdaBoostClassifier.html} \texttt{https://scikit-learn.org/stable/modules/generated/sklearn.neural\_network.MLPRegressor.html#sklearn.neural\_network.MLPRegressor}*), including a 3-hidden-layer neural network and a boosted random forest, were trained on a randomly selected 85\% of the data. After feature selection and hyperparameter tuning, the models ranged from 97.3\% (simple linear regression) to 99.996\% (neural network) accurate on the unseen 15\% of the data (measured using Mean Average Error).
 Once trained, these predictive models can be saved for future usage - allowing for a near-immediate Ground State estimate in the future as opposed to having to solve one or more reduced models every time. 
 
 Using a prediction from the neural network model in the Shift-Invert parameter when solving a 10k grid point model gave around a 400x speedup compared to using a large negative guess - including the time taken to generate statistics about the potential and feed them into the neural network. 
