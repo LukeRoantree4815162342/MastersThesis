@@ -16,33 +16,61 @@
 %----------------------------------------------------------------------------------------
 
 \section{Review of Project Goals}
-%This `baseline solution' finds the first $k$ eigenstates of the Hamiltonian associated with an elecron interacting with a Hydrogenic atom at an instant, with the Coulomb Potential being modelled instead by a Soft-Core potential - which at all but very small distances is an accurate approximation of the Coulomb Potential. Due to the Coulomb Potential tending towards $\infty$ as $r\rightarrow 0$ it is difficult to model it numerically, but with a Soft-Core Potential approximation, we avoid the issues at small $r$s yet obtain accurate results for everywhere other than at the center.
+%In this project I hope to investigate and improve methods of modelling quantum systems and their evolution, in order to broaden the range of quantum phenomena that can be simulated by decreasing the computational resources needed to create and evolve the necessary models to simulate these phenomena. 
 
-%Is this an appropriate place for the above?
+%Additionally I hope to investigate applications of linear algebra quirks to improve computational models, develop an understanding for parallelised computation, and to meaningfully contribute to a current research project.
 
-%The Radial TISE is a simplification of the TISE for the case where the system is spherically symmetric, which is the case for a Hydrogenic atom - for both a Coulomb Potential or a Soft-Core Potential.
+In this project, I hoped to;
+\begin{itemize}
+	\item[-]{Investigate methods of modelling quantum systems and their evolution,}
+	\item[-]{Improve the efficiency and accuracy of several models,}
+	\item[-]{Investigate applications of linear algebra quirks to improve the computational models,}
+	\item[-]{Develop an understanding for parallelised computation,}
+	\item[-]{Meaningfully contribute to a current research project.}
+\end{itemize}
 
+During the project, with evidence shown throughout this thesis, I succeeded in creating mathematical models to describe a Hydrogenic system at some initial time as well as successfully implementing further numerical methods to describe the systems evolution under the influence of arbitrary external potentials.
 
+I applied numerous optimisation methods to several stages of the modelling, finding methods with potential applications far outside this particular quantum system - or even any physical system at all. Between the various optimisation methods implemented, I was able to improve the efficiency, accuracy, stability, and scalability of of the full model - from finding the initial bound states of the system, to propagating a wavefunction built from them through time. Several of these findings, such as the FastBOI method to improve eigensolver performance, relied on exploiting well known results from linear algebra in an unintuitive way and have little connection to the physical problem being solved; due to this, several of these findings could be easily adapted or used directly in unrelated areas as long as the model architecture is similar - such as the FastBOI method, which can be applied to any finite difference scheme that asumes boundary conditions of $0$ past the end points of an interval.
+
+During the development of the TDSE solutions via propagation, I parallelised my method of propagating the initial wavefunction to work over an arbitrary number of processors; to be able to do this, I researched many parallelism scheme techniques and approaches, and developed a solid foundation in parallelism strategy and how to measure the effectiveness of a chosen scheme. This became especially useful when working on RMT later in the project, where a variety of different parallelisation techniques are used in different contexts and with different implementation strategies. With the research I had done, and experience from implementing a strategy in my `toy code', I was able to identify where to build and how to connect different parts of my FD RMT implementation in order to take advantage of existing parallelism schemes without needing to disable or re-write them to implement my FD propagator.
+
+The development of the FD RMT implementation I undertook is unfinished, but from the components completed so far it shows strong potential to be a more efficient modelling technique in some cases than the current Arnoldi-based implementation. Additionally, from comparing FD propagation methods and Arnoldi-based propagation methods in my `toy-code', I have further evidence to support the benefit of a FD implementation. I hope to complete the final parts of the FD RMT implementation, as well as investigate any new physics that becomes available for study upon the improvements in accuracy or simulation time enabled by the FD implementation. 
 
 \section{Overview of Findings}
 \subsection{TISE}
-adslkjn 
+\begin{itemize}
+	\item[-]{Sparse-Diagonal storage greatly increases the maximum number of spatial grid points that can be used in the model - increasing the maximum accuracy that can be obtained from the model,}
+	\item[-]{Using an eigensolver optimised for sparse-Hermitian matrices can reduce the time taken to find eigenpairs,}
+	\item[-]{Finding the ground state energy for a model with few grid points provides a good estimate to the ground state energy for a much larger model, which can be exploited to force much faster convergence when finding eigenpairs from the larger model.}
+\end{itemize}
+
 \subsection{TDSE}
-asdf 
+\begin{itemize}
+	\item[-]{FD based propagators are more efficient than Krylov-subspace based propagators when using a high order of terms, but this benefit drops as fewer terms are used,}
+	\item[-]{FD propagators are more stable than KS propagators when using a high number of terms,}
+	\item[-]{Both propagators can be parallelised such that worker processes operate fully independently; a result that could make GPU parallelism a good strategy for this in future,}
+	\item[-]{The implemented parallelism scheme scales well, with a relatively small serial component, and being able to take advantage of a large number of processing units.}
+\end{itemize}
+
 \subsection{RMT}
-kdadfkj
+\begin{itemize}
+	\item[-]{A finite difference implementation of the inner-region propagator is now implemented, and matches expected results,}
+	\item[-]{Development on the outer-region finite difference propagator so far indicates that a working implementation is possible,}
+	\item[-]{The findings from the toy code suggest that there are many cases where a FD RMT would offer significant advantage over the current implementation.}
+\end{itemize}
 
 \section{Potential Further Research Directions}
 
 \subsection{Complete FD RMT Outer Region Propagator}
-kjna kma
+Continuing on in this research area, I hope to complete the FD RMT implementation and ensure it works correctly by comparing results found using it to results found using the current implementation. I then wish to ensure all current options to include various quantum-mechanical, optical, and relativistic effects similarly work on the FD RMT - ensuring that it will still be as suitable to use for research purposes as the current one, if not more so with increased efficiency enabling longer simulation times and/or more accuracy.
 
-\subsection{Add Functionality To FD RMT Implementation}
-fs hsdf 
+\subsection{Quantify Suitable Use Cases For FD RMT Implementation}
+By benchmarking it with different problems and comparing to the current implementation, I hope to identify guidelines as to where each propagation method will outperform the other - enabling users of RMT to make an informed choice as to which version they should use, and potentially offer insight to further possible improvements in both implementations should one outperform the other in unexpected cases.
 %\subsection{Shared \& Distributed Memory}
 %dfgaljsdf lkjdhf adslkjn asdja alksjnda lknas lakn KJN Kdsf lk
 
 \subsection{Investigate `Non-Finite' Difference Model}
-asdbb
+During the development of my `toy code' models, I focused on splitting the interval into equally spaced grid points; in order to be able to use FD schemes. In RMT, this is not the case; the inner region has a much higher level of accuracy than the outer region, and even uses a different basis set. It would be interesteing to investigate if it is possible to create a `non-finite' difference method that allows for unequally spaced spatial grid points such that we can enforce higher levels of accuracy near the center, without needing to eat the cost of computing to the same level of accuracy at the edges of the interval - which in general we are less interested in. 
 
 %----------------------------------------------------------------------------------------

@@ -7,10 +7,9 @@
 %----------------------------------------------------------------------------------------
 \section{R-Matrix Theory}
 \subsection{Origins \& Usage}
-(* cite "https://arxiv.org/pdf/1001.0678.pdf" P. Descouvemont, D. Baye *)
-R-Matrix theory is a method, or branch of methods, to obtain scattering properties from the Schrodinger equation of a range of physical systems (* cite "https://arxiv.org/pdf/1001.0678.pdf" P. Descouvemont, D. Baye *). 
+R-Matrix theory\cite{Rmat} is a method, or branch of methods, to obtain scattering properties from the Schrodinger equation of a range of physical systems. 
 
-It was first proposed in 1946 by Wigner(* cite Wigner E P 1946, Phys. Rev.7015 *) as a tool for modelling in quantum physics, initially intended to be used to describe resonances in nuclear reactions. In modern usage, R-Matrix theory is mostly used to describe scattering states resulting from interactions of particles or systems of particles. 
+It was first proposed in 1946 by Wigner\cite{Wigner} as a tool for modelling in quantum physics, initially intended to be used to describe resonances in nuclear reactions. In modern usage, R-Matrix theory is mostly used to describe scattering states resulting from interactions of particles or systems of particles. 
 
 Adaptions to, and improvements on, the original R-Matrix method have been developed to extend the use cases for it; one example of this is `Time-dependent R-matrix' theory, where an R-Matrix basis set describing the wavefunction of the system is evolved through time. 
 
@@ -23,13 +22,13 @@ The boundary between these two regions is described by the `channel radius', cho
 \subsection{What Is RMT?}
 RMT is a toolset of codes based on [R]-[M]atrix theory with [T]ime-dependence and is used for investigating atomic, molecular, and optical physics. 
 
-It was first proposed(* cite L. R. Moore. The RMT method for many-electron atomic systems in intense short-pulse laser light *) in 2011 as an ab-initio method for solving the TDSE for multi-electron systems exposed to intense short-pulse laser light, and was developed in the CTAMOP department of Queen's University Belfast; where further development continues to take place, allowing for the investigation of other phyical phenomena such as high-harmonic generation, polarisation effects, and even some relativistic effects. 
+It was first proposed\cite{LMoore} in 2011 as an ab-initio method for solving the TDSE for multi-electron systems exposed to intense short-pulse laser light, and was developed in the CTAMOP department of Queen's University Belfast; where further development continues to take place, allowing for the investigation of other phyical phenomena such as high-harmonic generation, polarisation effects, and even some relativistic effects. 
 
 In addition to development on the RMT toolset to allow invesigation of new physics, development aimed towards improving the computational efficiency is often undertaken as the cost of running simulations can be prohibitive for some investigations and reduce the scope in which RMT can be a useful toolset.
 
 \section{Wavefunction Propagation In RMT}
 \subsection{Overview of Arnoldi Propagator}
-At its current version, RMT uses Arnoldi-based propagators in both the inner and outer regions - calling the subroutines `arnoldi\_propagate\_inner' \& `arnoldi\_propagate\_outer' respectively to perform each step of this propagation. These propagators work as we have described in Chapter 3, and the Krylov basis size to be used can be specified in the parameter setup file. While RMT parallelises the evolution of the wavefunction across many processing units, the parallelisation steps are abstracted outside these subroutines such that within each subroutine call the process is completely serial - a fact I later exploit in order to simplify the work needed to implement finite difference propagation in RMT without needing to reimplement a parallelisation scheme.
+At its current version, RMT uses Arnoldi-based propagators in both the inner and outer regions - calling the subroutines `arnoldi\_propagate\_inner' and `arnoldi\_propagate\_outer' respectively to perform each step of this propagation. These propagators work as we have described in Chapter 3, and the Krylov basis size to be used can be specified in the parameter setup file. While RMT parallelises the evolution of the wavefunction across many processing units, the parallelisation steps are abstracted outside these subroutines such that within each subroutine call the process is completely serial - a fact I later exploit in order to simplify the work needed to implement finite difference propagation in RMT without needing to reimplement a parallelisation scheme.
 
 \subsection{Information Sharing Between Regions}
 During propagation, the FD points of the wavefunciton near the boundary in the inner region are projected onto the basis set for the outer region wavefunction, and then communicated to the outer region, in order to account for boundary reflections. A similar communication interface exists to communicate information about the outer region to the inner region during propagation. This communication represents a sizeable chunk of the computational effort needed to perform the propagation, which is mitigated in RMT by not sharing this information between the regions at every timestep; instead only every few timesteps.
@@ -57,9 +56,9 @@ The next challenge was to represent the Hamiltonian as a matrix with all effects
 
 With these two challenges taken care of, the remainder of the propagation method closely resembled the method used in my toy code - simply subtracting previous wavefunctions multiplied by finite difference coefficients. Given this, I was able to copy my previous work (albeit needing to convert it to a different programming language), and then ensure that the correct global variables corresponding to the chunks of wavefunction are correctly updated and shared between timesteps.
 
-\subsection{Analysis Of Effectiveness \& Usefulness Of Completed Work}
-dsfg kjd klds lk
-sd klndf lk s
-sd dfg sdfgdsfgsd
+%\subsection{Analysis Of Effectiveness \& Usefulness Of Completed Work}
+%dsfg kjd klds lk
+%sd klndf lk s
+%sd dfg sdfgdsfgsd
 
 

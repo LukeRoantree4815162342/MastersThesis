@@ -215,7 +215,8 @@ headsepline, % Uncomment to get a line under the header
 
 \begin{abstract}
 \addchaptertocentry{\abstractname} % Add the abstract to the table of contents
-The Thesis Abstract is written here (and usually kept to just this page). The page is kept centered vertically so can expand into the blank space above the title too\ldots
+%The Thesis Abstract is written here (and usually kept to just this page). The page is kept centered vertically so can expand into the blank space above the title too\ldots
+Research was conducted to investigate numerical models of quantum systems, with a focus on Hydrogenic systems. Several finite difference (FD) methods to obtain instantaneous solutions to the Schr\"{o}dinger equation were compared, and improvements to accuracy (500x more using sparse-diagonal data structures), stability (using central-FD methods), and efficiency (up to 400x speedup using appropriate eigensolver and development of custom `boosting' algorithms) were developed. Two families (FD and Krylov subspace) of time-propagation methods were investigated, extending the capabilities of the models to include time-evolution. The FD propagator outperformed the Krylov propagator in all tests, both efficiency and accuracy where it could be compared, although during low-order propagation there was little difference in efficiency. A parallelisation scheme for these propagators was designed and implemented, and its effiency and scalability measured - finding that it performed well in both serial ($<10\%$ of code serial) and parallel (efficiency/core reducing by under $20\%$ at 32 cores) efficiency testing. Further work was undertaken based on these findings to implement a FD version of RMT; a FD implementation for inner-region propagation was developed and tested, and work towards an outer-region propagator has begun.
 \end{abstract}
 
 %----------------------------------------------------------------------------------------
@@ -239,7 +240,7 @@ Additionally, I would like to thank the other Mathematics Masters students in Qu
 
 \listoffigures % Prints the list of figures
 
-\listoftables % Prints the list of tables
+%\listoftables % Prints the list of tables
 
 %----------------------------------------------------------------------------------------
 %	ABBREVIATIONS
@@ -301,7 +302,7 @@ Additionally, I would like to thank the other Mathematics Masters students in Qu
 \subsection*{Motivations}
 The study of the evolution of quantum systems covers a wide field of current research, and has produced both fantastic insights to the world around us as well as enabling the development of exciting new technologies.
 
-In particular, the investigation of ultrafast Laser-atom interactions has led to outstanding results even outside quantum or optical physics. An example of this includes that RMT, a code developed to model ultrafast interactions with multielectron systems, is due to be used as a benchmark for performance testing on ARCHER - a large supercomputer in Edinburgh. Another example is a recent development in Heriot-Watt, where ultrafast Lasers were used to succesfully weld metal directly to glass (*cite https://epsrc.ukri.org/newsevents/news/hwultrafastlaser/ *)
+In particular, the investigation of ultrafast Laser-atom interactions has led to outstanding results even outside quantum or optical physics. An example of this includes that RMT, a code developed to model ultrafast interactions with multielectron systems, is due to be used as a benchmark for performance testing on ARCHER - a large supercomputer in Edinburgh. Another example is a recent development in Heriot-Watt, where ultrafast Lasers were used to succesfully weld metal directly to glass\cite{HWlaser}.
 
 While quantum theory as a concept has existed for some time, only certain types of quantum system can have their evolution solved analytically; others require numerical approximations to be made. Until relatively recently, the available computational resources needed for the majority of these models to any degree of accuracy were not available, but now with modern technologies and by exploiting massively parallelised computer systems, we can calculate extremely accurate approximations for the evolution of these systems; allowing new quantum phenomena to be explored.
 
@@ -325,7 +326,8 @@ Additionally I hope to investigate applications of linear algebra quirks to impr
 % Include the appendices of the thesis as separate files from the Appendices folder
 % Uncomment the lines as you write the Appendices
 
-\include{Appendices/AppendixA}
+\include{Appendices/AppendixLuke}
+%\include{Appendices/AppendixA}
 %\include{Appendices/AppendixB}
 %\include{Appendices/AppendixC}
 

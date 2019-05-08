@@ -77,6 +77,8 @@ Using only the constant Soft-Core potential, and so with no time-dependent terms
 
 For context if attempting to reprodce the results, the calculations were performed in a Python3.7 Jupyter Notebook, running on a 3.2GHz i7u processor with 8GB of RAM.
 
+Note additionally that in order to better compare the accuracies of the two propagators, an additional constraint was placed upon the wavefunction in the FD propagator - normalizing the new wavefunction at each timestep. This differs from the standard implementation, as the norm of the wavefunction provides useful information about the stability of the propagation. Here, enforcing the normalisation ensures we can obtain an accurate calculation of ground state population and allows us to better compare the accuracy of the propagators.
+
 \subsubsection{Krylov Subspace Propagator:}
 Mean runtime: \hspace{2cm} 32.28598s\newline
 Standard Deviation: 0.10144s / 0.31419\%
@@ -194,7 +196,7 @@ However, as seen in the above `efficiency' comparisons, our time propagation spe
 
 To try to reduce this problem as much as possible, the propagators were parallelised - allowing different chuncks of the wavefunction to be propagated separately on different computers/processors/cores. 
 
-To do this, both the wavefunction and the Hamiltonian were split into `chunks' - this is equivalent to considering the time evolution of subrergions of our interval seperately, and so they can be recombined afterwards to re-form the full evolved wavefunction. A diagram describing this process is shown below (Note - this is an overview of the process, and leaves out contributions from previous timesteps in the FD case, and repetitions of this matrix multiplication for the Krylov Subspace case);
+To do this, both the wavefunction and the Hamiltonian were split into `chunks' - this is equivalent to considering the time evolution of subrergions of our interval seperately, and so they can be recombined afterwards to re-form the full evolved wavefunction. A diagram describing this process is shown below (Note - this is an overview of the process, and leaves out contributions from previous timesteps in the FD case, and repetitions of this matrix multiplication for the Krylov Subspace case);\newpage
 
 \begin{figure}[H]
          \includegraphics[width=\textwidth]{./ParallelScheme.png}
@@ -242,7 +244,7 @@ Limitations of this method include that extra calculations (in the overlapped re
 An advantage this approach has over the last is that no communication is needed between the chunks; due to this there is no additional communication cost, and the wavefunction and Hamiltonian can be split into more chunks than there are computers - reducing the amount of work needed to propagate each chunk and allowing any faster computers to immediately start working on the next chunk upon completion of a chunk propagation, rather than waiting for the propagation of the other chunks to finish first.
 
 \subsection{Efficiency Testing}
-ARCHER (* CITE *) define several quantities; `Speed-Up' ($S$), `Parallel Efficiency' ($E_{\text{par}}$), and `Serial Efficiency' ($E_{\text{ser}}$) which we will use to evaluate the effectiveness of our parallelisation. These quantities are defined in terms of execution time, $T$.
+ARCHER\cite{ARCHER} define several quantities; `Speed-Up' ($S$), `Parallel Efficiency' ($E_{\text{par}}$), and `Serial Efficiency' ($E_{\text{ser}}$) which we will use to evaluate the effectiveness of our parallelisation. These quantities are defined in terms of execution time, $T$.
 \begin{itemize}
 	\item[-]{\textbf{Speed-Up: }
 		$$
@@ -261,7 +263,7 @@ ARCHER (* CITE *) define several quantities; `Speed-Up' ($S$), `Parallel Efficie
 \end{itemize}
 Where $N, P$ are the size of the problem and number of processors respectively.
 
-Amdahl (* cite archer *) stated in 1967 that "The performance improvement to be gained by parallelisation is limited by the proportion of the code which is serial". Effectively, this means that a given process can be approximated by a part or parts that is non-parallelisable and a part or parts that are; and so even with the best parallelisation scheme the process will take at least as long as the non-parallelisable parts take to run. 
+Amdahl\cite{ARCHER} stated in 1967 that "The performance improvement to be gained by parallelisation is limited by the proportion of the code which is serial". Effectively, this means that a given process can be approximated by a part or parts that is non-parallelisable and a part or parts that are; and so even with the best parallelisation scheme the process will take at least as long as the non-parallelisable parts take to run. 
 
 He exteds this concept into `Amdahl's law'; given a process that has a fraction, $\alpha$, that is completely serial and that the rest is a perfectly efficient parallel scheme, we can describe the parallel runtime and speedup as follows:
 $$
@@ -299,6 +301,6 @@ The serial efficiency of our parallelised model was investigated by timing the p
 
 Figure 3.3 shows an increasing benefit ratio to using the parallelised scheme as the number of grid points grows, but this ratio converges at 17500 spatial grid points - after which the benefit ratio is fairly constant at around 0.04, showing that this scheme caps out at being around 25x faster than the non-parallelised version no matter how many additional processing units are given.
 
-\subsubsection{Comments}
+%\subsubsection{Comments}
 %----------------------------------------------------------------------------------------
 
